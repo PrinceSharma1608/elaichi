@@ -42,7 +42,7 @@ public enum OverallStatus
             name = "checklist",
             columnDefinition = "jsonb"
     )
-    private JsonNode checklist;
+    private String checklist;
 
     @Column(name = "remarks")
     private String remarks;

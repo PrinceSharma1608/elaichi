@@ -15,16 +15,24 @@ import java.time.LocalDateTime;
 @Builder
 public class CurrentDailyMaintenanceStatus
 {
-public enum MaintenanceStatus
-{
-    PENDING,
-    COMPLETED,
-    MISSED
-}
+    public enum MaintenanceStatus
+    {
+        PENDING,
+        COMPLETED,
+        MISSED
+    }
 
     @Id
+    @Column(name = "machine_id")
+    private String machineId;
+
     @OneToOne
-    @JoinColumn(name = "machine_id")
+    @JoinColumn(
+            name = "machine_id",
+            referencedColumnName = "machine_id",
+            insertable = false,
+            updatable = false
+    )
     private machines machine;
 
     @Column(name = "maintenance_date")
