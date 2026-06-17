@@ -50,4 +50,8 @@ public interface machineRepo
 
     boolean existsByJhOwner_UserId(
             String userId);
+
+    machines findByJhOwner_UserId(
+            String userId);
+
 }

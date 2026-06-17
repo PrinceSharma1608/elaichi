@@ -186,19 +186,34 @@ public class UserService
 
             if(machine.getJhOwner() != null)
             {
+                if(machine.getJhOwner()
+                        .getUserId()
+                        .equals(dto.getJhOwnerId()))
+                {
+                    continue;
+                }
+
                 throw new RuntimeException(
                         "Machine Already Assigned : "
                                 + dto.getMachineId());
             }
 
-            if(machineRepo.existsByJhOwner_UserId(
-                    dto.getJhOwnerId()))
+            machines existingMachine =
+                    machineRepo.findByJhOwner_UserId(
+                            dto.getJhOwnerId());
+
+            if(existingMachine != null)
             {
+                if(existingMachine.getMachineId()
+                        .equals(dto.getMachineId()))
+                {
+                    continue;
+                }
+
                 throw new RuntimeException(
                         "JH Owner Already Assigned : "
                                 + dto.getJhOwnerId());
             }
-
             machine.setJhOwner(jhOwner);
 
             machineRepo.save(machine);
