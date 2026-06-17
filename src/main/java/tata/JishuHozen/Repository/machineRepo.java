@@ -47,4 +47,7 @@ public interface machineRepo
             ON tl.userId = map.teamLeaderId
     """)
     List<MachineDashboardDTO> getDashboardMachines();
+
+    boolean existsByJhOwner_UserId(
+            String userId);
 }

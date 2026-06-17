@@ -10,4 +10,6 @@ public interface teamLeaderJhOwnerMappingRepo
 {
     List<TeamLeaderJhOwnerMapping>
     findByTeamLeaderId(String teamLeaderId);
+    boolean existsByJhOwnerId(
+            String jhOwnerId);
 }

@@ -6,4 +6,5 @@ import tata.JishuHozen.Entity.area;
 public interface areaRepo
         extends JpaRepository<area,String>
 {
+    boolean existsBySupervisor_UserId(String userId);
 }

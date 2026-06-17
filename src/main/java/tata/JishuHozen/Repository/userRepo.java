@@ -10,4 +10,12 @@ public interface userRepo
         extends JpaRepository<users,String>
 {
     List<users> findByUserRole(users.UserRole userRole);
+    Optional<users> findByUserId(
+            String userId);
+
+    boolean existsByUserIdAndUserRole(
+            String userId,
+            users.UserRole userRole);
+
+
 }
