@@ -24,11 +24,10 @@ public class api
 
     @GetMapping("/machines")
     public List<MachineDashboardDTO>
-    getDashboardMachines()
+    getDashboardMachines(@RequestParam  String userId)
     {
-        return userService.getDashboardMachines();
+        return userService.getDashboardMachines(userId);
     }
-
     @PutMapping("/a-sMap")
     public String mapSupervisor(
             @RequestBody AreaSupervisorMappingDTO dto)

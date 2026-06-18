@@ -62,9 +62,40 @@ public class UserService
 
 
     public List<MachineDashboardDTO>
-    getDashboardMachines()
+    getDashboardMachines(
+            String userId)
     {
-        return machineRepo.getDashboardMachines();
+        users user =
+                userRepo.findById(userId)
+                        .orElseThrow(
+                                () -> new RuntimeException(
+                                        "User Not Found"));
+
+        switch(user.getUserRole())
+        {
+            case LINE_INCHARGE:
+                return machineRepo
+                        .getDashboardMachines();
+
+            case SUPERVISOR:
+                return machineRepo
+                        .getSupervisorDashboardMachines(
+                                userId);
+
+            case TEAM_LEADER:
+                return machineRepo
+                        .getTeamLeaderDashboardMachines(
+                                userId);
+
+            case JH_OWNER:
+                return machineRepo
+                        .getJhOwnerDashboardMachines(
+                                userId);
+
+            default:
+                throw new RuntimeException(
+                        "Invalid Role");
+        }
     }
     public String mapSupervisor(
             AreaSupervisorMappingDTO dto)
