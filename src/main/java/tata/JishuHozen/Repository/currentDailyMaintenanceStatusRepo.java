@@ -25,7 +25,7 @@ public interface currentDailyMaintenanceStatusRepo
             c.maintenanceStatus,
             c.audited
         )
-        FROM currentDailyMaintenanceStatus c
+        FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
     """)
     List<DailyDashboardDTO>
@@ -39,7 +39,7 @@ public interface currentDailyMaintenanceStatusRepo
             c.maintenanceStatus,
             c.audited
         )
-        FROM currentDailyMaintenanceStatus c
+        FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
         JOIN m.area a
         JOIN a.supervisor s
@@ -58,7 +58,7 @@ public interface currentDailyMaintenanceStatusRepo
             c.maintenanceStatus,
             c.audited
         )
-        FROM currentDailyMaintenanceStatus c
+        FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
         JOIN m.jhOwner j
         JOIN TeamLeaderJhOwnerMapping map
@@ -78,7 +78,7 @@ public interface currentDailyMaintenanceStatusRepo
             c.maintenanceStatus,
             c.audited
         )
-        FROM currentDailyMaintenanceStatus c
+        FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
         JOIN m.jhOwner j
         WHERE j.userId = :jhOwnerId

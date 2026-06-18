@@ -1,6 +1,7 @@
 package tata.JishuHozen.DTO;
 
 import lombok.*;
+import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatus;
 
 @Getter
 @Setter
@@ -13,7 +14,7 @@ public class DailyDashboardDTO
 
     private String machineName;
 
-    private String maintenanceStatus;
+    private CurrentDailyMaintenanceStatus.MaintenanceStatus maintenanceStatus;
 
     private Boolean audited;
 }
