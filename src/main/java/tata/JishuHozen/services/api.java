@@ -28,6 +28,16 @@ public class api
     {
         return userService.getDashboardMachines(userId);
     }
+    @GetMapping("/daily-dashboard")
+    public List<DailyDashboardDTO>
+    getDailyDashboard(
+            @RequestParam
+            String userId)
+    {
+        return userService
+                .getDailyDashboard(
+                        userId);
+    }
     @PutMapping("/a-sMap")
     public String mapSupervisor(
             @RequestBody AreaSupervisorMappingDTO dto)

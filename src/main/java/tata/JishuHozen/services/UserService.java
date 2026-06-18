@@ -8,10 +8,7 @@ import tata.JishuHozen.Entity.TeamLeaderJhOwnerMapping;
 import tata.JishuHozen.Entity.area;
 import tata.JishuHozen.Entity.machines;
 import tata.JishuHozen.Entity.users;
-import tata.JishuHozen.Repository.areaRepo;
-import tata.JishuHozen.Repository.machineRepo;
-import tata.JishuHozen.Repository.teamLeaderJhOwnerMappingRepo;
-import tata.JishuHozen.Repository.userRepo;
+import tata.JishuHozen.Repository.*;
 
 import java.util.List;
 
@@ -26,10 +23,46 @@ public class UserService
     @Autowired
     private  areaRepo areaRepo;
     @Autowired
-    private teamLeaderJhOwnerMappingRepo
-            mappingRepo;
+    private teamLeaderJhOwnerMappingRepo mappingRepo;
+    @Autowired
+    private currentDailyMaintenanceStatusRepo currentDailyMaintenanceStatusRepo;
 
+    public List<DailyDashboardDTO>
+    getDailyDashboard(
+            String userId)
+    {
+        users user =
+                userRepo.findById(userId)
+                        .orElseThrow(
+                                () -> new RuntimeException(
+                                        "User Not Found"));
 
+        switch(user.getUserRole())
+        {
+            case LINE_INCHARGE:
+                return currentDailyMaintenanceStatusRepo
+                        .getDailyDashboard();
+
+            case SUPERVISOR:
+                return currentDailyMaintenanceStatusRepo
+                        .getSupervisorDailyDashboard(
+                                userId);
+
+            case TEAM_LEADER:
+                return currentDailyMaintenanceStatusRepo
+                        .getTeamLeaderDailyDashboard(
+                                userId);
+
+            case JH_OWNER:
+                return currentDailyMaintenanceStatusRepo
+                        .getJhOwnerDailyDashboard(
+                                userId);
+
+            default:
+                throw new RuntimeException(
+                        "Invalid Role");
+        }
+    }
     public List<UserResponseDTO> getUsers(
             users.UserRole role)
     {
