@@ -1,0 +1,115 @@
+package tata.JishuHozen.services;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatus;
+import tata.JishuHozen.Entity.MaintenanceLogs;
+import tata.JishuHozen.Entity.machines;
+import tata.JishuHozen.Repository.currentDailyMaintenanceStatusRepo;
+import tata.JishuHozen.Repository.machineRepo;
+import tata.JishuHozen.Repository.maintenanceLogsRepo;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+public class DailyMaintenanceScheduler
+{
+    private final machineRepo machineRepo;
+
+    private final currentDailyMaintenanceStatusRepo
+            statusRepo;
+
+    private final maintenanceLogsRepo logsRepo;
+
+    @Scheduled(
+            cron = "0 0 0 * * *",
+            zone = "Asia/Kolkata")
+    public void populateDailyTasks()
+    {
+        List<machines> dueMachines =
+                machineRepo
+                        .findByMachineStatusAndNextMaintenanceDateLessThanEqual(
+                                machines.MachineStatus.ACTIVE,
+                                LocalDate.now());
+
+        for(machines machine : dueMachines)
+        {
+            if(statusRepo.existsById(
+                    machine.getMachineId()))
+            {
+                continue;
+            }
+
+            CurrentDailyMaintenanceStatus status =
+                    CurrentDailyMaintenanceStatus
+                            .builder()
+                            .machineId(
+                                    machine.getMachineId())
+                            .maintenanceDate(
+                                    LocalDate.now())
+                            .maintenanceStatus(
+                                    CurrentDailyMaintenanceStatus
+                                            .MaintenanceStatus
+                                            .PENDING)
+                            .audited(false)
+                            .build();
+
+            statusRepo.save(status);
+        }
+    }
+
+    @Scheduled(
+            cron = "0 5 20 * * *",
+            zone = "Asia/Kolkata")
+    public void markMissedMachines()
+    {
+        List<CurrentDailyMaintenanceStatus>
+                pendingTasks =
+                statusRepo.findByMaintenanceStatus(
+                        CurrentDailyMaintenanceStatus
+                                .MaintenanceStatus
+                                .PENDING);
+
+        for(CurrentDailyMaintenanceStatus
+                task : pendingTasks)
+        {
+            machines machine =
+                    task.getMachine();
+
+            task.setMaintenanceStatus(
+                    CurrentDailyMaintenanceStatus
+                            .MaintenanceStatus
+                            .MISSED);
+
+            machine.setDelayCount(
+                    machine.getDelayCount() + 1);
+
+            machine.setNextMaintenanceDate(
+                    LocalDate.now()
+                            .plusDays(1));
+
+            MaintenanceLogs log =
+                    MaintenanceLogs.builder()
+                            .machine(machine)
+                            .maintenanceDate(
+                                    LocalDateTime.now())
+                            .completionType(
+                                    MaintenanceLogs
+                                            .CompletionType
+                                            .MISSED)
+                            .remarks(
+                                    "Maintenance Missed")
+                            .build();
+
+            statusRepo.save(task);
+
+            machineRepo.save(machine);
+
+            logsRepo.save(log);
+        }
+    }
+}
