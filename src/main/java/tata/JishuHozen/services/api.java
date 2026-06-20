@@ -3,10 +3,9 @@ package tata.JishuHozen.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import tata.JishuHozen.DTO.*;
-<<<<<<< HEAD
+
 import tata.JishuHozen.Entity.DashboardStatsDTO;
-=======
->>>>>>> 9c1d04c2262df358ef5619b7a80a261ed532b826
+
 import tata.JishuHozen.Entity.users;
 
 import java.util.List;
@@ -17,12 +16,10 @@ import java.util.List;
 public class api
 {
     private final UserService userService;
-<<<<<<< HEAD
+
     private final MaintenanceService
             maintenanceService;
-=======
 
->>>>>>> 9c1d04c2262df358ef5619b7a80a261ed532b826
     @GetMapping("/users")
     public List<UserResponseDTO> getUsers(
             @RequestParam(required = false)
@@ -68,7 +65,7 @@ public class api
         return userService
                 .mapMachineToJhOwner(dtoList);
     }
-<<<<<<< HEAD
+
     @PutMapping("/maintenance/complete")
     public String completeMaintenance(
             @RequestBody
@@ -78,13 +75,5 @@ public class api
                 .completeMaintenance(
                         dto);
     }
-    @GetMapping("/dashboard-stats")
-    public DashboardStatsDTO
-    getDashboardStats()
-    {
-        return userService
-                .getDashboardStats();
-    }
-=======
->>>>>>> 9c1d04c2262df358ef5619b7a80a261ed532b826
+
 }

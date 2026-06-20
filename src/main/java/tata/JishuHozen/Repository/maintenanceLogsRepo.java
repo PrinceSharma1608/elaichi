@@ -14,8 +14,5 @@ public interface maintenanceLogsRepo
     findByMachine_MachineId(
             String machineId
     );
-<<<<<<< HEAD
 
-=======
->>>>>>> 9c1d04c2262df358ef5619b7a80a261ed532b826
 }

@@ -4,14 +4,14 @@ import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tata.JishuHozen.DTO.*;
-<<<<<<< HEAD
+
 import tata.JishuHozen.Entity.*;
-=======
+
 import tata.JishuHozen.Entity.TeamLeaderJhOwnerMapping;
 import tata.JishuHozen.Entity.area;
 import tata.JishuHozen.Entity.machines;
 import tata.JishuHozen.Entity.users;
->>>>>>> 9c1d04c2262df358ef5619b7a80a261ed532b826
+
 import tata.JishuHozen.Repository.*;
 
 import java.util.List;
@@ -66,10 +66,7 @@ public class UserService
                 throw new RuntimeException(
                         "Invalid Role");
         }
-<<<<<<< HEAD
 
-=======
->>>>>>> 9c1d04c2262df358ef5619b7a80a261ed532b826
     }
     public List<UserResponseDTO> getUsers(
             users.UserRole role)
@@ -292,37 +289,7 @@ public class UserService
         }
 
         return "Mapping Successful";
-<<<<<<< HEAD
 
-    }
-    public DashboardStatsDTO
-    getDashboardStats()
-    {
-        return DashboardStatsDTO
-                .builder()
-                .totalMachines(
-                        machineRepo.count())
-                .pending(
-                        currentDailyMaintenanceStatusRepo
-                                .countByMaintenanceStatus(
-                                        CurrentDailyMaintenanceStatus
-                                                .MaintenanceStatus
-                                                .PENDING))
-                .completed(
-                        currentDailyMaintenanceStatusRepo
-                                .countByMaintenanceStatus(
-                                        CurrentDailyMaintenanceStatus
-                                                .MaintenanceStatus
-                                                .COMPLETED))
-                .missed(
-                        currentDailyMaintenanceStatusRepo
-                                .countByMaintenanceStatus(
-                                        CurrentDailyMaintenanceStatus
-                                                .MaintenanceStatus
-                                                .MISSED))
-                .build();
-=======
->>>>>>> 9c1d04c2262df358ef5619b7a80a261ed532b826
     }
 }
 
