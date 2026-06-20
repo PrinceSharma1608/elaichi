@@ -51,13 +51,9 @@ public enum Flag
     private LocalDate lastMaintenanceDate;
 
     @Column(name = "next_maintenance_date")
-
-    @Column(
-            name = "next_maintenance_date",
-            insertable = false,
-            updatable = false
-    )
     private LocalDate nextMaintenanceDate;
+
+
 
     @Column(name = "delay_count")
     private Integer delayCount;
