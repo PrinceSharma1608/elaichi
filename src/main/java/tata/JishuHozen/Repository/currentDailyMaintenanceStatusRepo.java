@@ -7,7 +7,10 @@ import tata.JishuHozen.DTO.DailyDashboardDTO;
 import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatus;
 
 import java.util.List;
+<<<<<<< HEAD
 import java.util.Optional;
+=======
+>>>>>>> 9c1d04c2262df358ef5619b7a80a261ed532b826
 
 public interface currentDailyMaintenanceStatusRepo
         extends JpaRepository<
@@ -88,6 +91,7 @@ public interface currentDailyMaintenanceStatusRepo
     getJhOwnerDailyDashboard(
             @Param("jhOwnerId")
             String jhOwnerId);
+<<<<<<< HEAD
     Optional<CurrentDailyMaintenanceStatus>
     findByMachine_MachineId(
             String machineId);
@@ -95,4 +99,6 @@ public interface currentDailyMaintenanceStatusRepo
             CurrentDailyMaintenanceStatus
                     .MaintenanceStatus
                     status);
+=======
+>>>>>>> 9c1d04c2262df358ef5619b7a80a261ed532b826
 }

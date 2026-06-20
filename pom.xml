@@ -102,8 +102,12 @@
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+<<<<<<< HEAD
 
     </dependencies>
+=======
+	</dependencies>
+>>>>>>> 9c1d04c2262df358ef5619b7a80a261ed532b826
 
 	<build>
 		<plugins>

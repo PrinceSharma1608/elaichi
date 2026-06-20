@@ -6,7 +6,10 @@ import tata.JishuHozen.DTO.MachineDashboardDTO;
 import tata.JishuHozen.Entity.machines;
 import org.springframework.data.repository.query.Param;
 
+<<<<<<< HEAD
 import java.time.LocalDate;
+=======
+>>>>>>> 9c1d04c2262df358ef5619b7a80a261ed532b826
 import java.util.List;
 
 public interface machineRepo
@@ -144,8 +147,11 @@ public interface machineRepo
     getJhOwnerDashboardMachines(
             @Param("jhOwnerId")
             String jhOwnerId);
+<<<<<<< HEAD
     List<machines>
     findByMachineStatusAndNextMaintenanceDateLessThanEqual(
             machines.MachineStatus machineStatus,
             LocalDate date);
+=======
+>>>>>>> 9c1d04c2262df358ef5619b7a80a261ed532b826
 }

@@ -21,12 +21,16 @@ public enum OverallStatus
     WARNING,
     CRITICAL
 }
+<<<<<<< HEAD
     public enum CompletionType
     {
         COMPLETED,
         MISSED,
         CANCELLED
     }
+=======
+
+>>>>>>> 9c1d04c2262df358ef5619b7a80a261ed532b826
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "log_id")
@@ -55,8 +59,11 @@ public enum OverallStatus
     @Enumerated(EnumType.STRING)
     @Column(name = "overall_status")
     private OverallStatus overallStatus;
+<<<<<<< HEAD
 
     @Enumerated(EnumType.STRING)
     @Column(name = "completion_type")
     private CompletionType completionType;
+=======
+>>>>>>> 9c1d04c2262df358ef5619b7a80a261ed532b826
 }
