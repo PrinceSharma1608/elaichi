@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import tata.JishuHozen.DTO.*;
 
 import tata.JishuHozen.Entity.*;
-
+import tata.JishuHozen.DTO.AreaResponseDTO;
 import tata.JishuHozen.Entity.TeamLeaderJhOwnerMapping;
 import tata.JishuHozen.Entity.area;
 import tata.JishuHozen.Entity.machines;
@@ -290,6 +290,28 @@ public class UserService
 
         return "Mapping Successful";
 
+    }
+    public List<AreaResponseDTO>
+    getAreas()
+    {
+        return areaRepo.findAll()
+                .stream()
+                .map(area ->
+                        AreaResponseDTO.builder()
+                                .areaId(
+                                        area.getAreaId())
+                                .areaName(
+                                        area.getAreaName())
+                                .supervisorId(
+                                        area.getSupervisor() != null
+                                                ? area.getSupervisor().getUserId()
+                                                : null)
+                                .supervisorName(
+                                        area.getSupervisor() != null
+                                                ? area.getSupervisor().getUserName()
+                                                : null)
+                                .build())
+                .toList();
     }
 }
 

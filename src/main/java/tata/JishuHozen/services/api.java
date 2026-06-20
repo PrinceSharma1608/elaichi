@@ -3,7 +3,7 @@ package tata.JishuHozen.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import tata.JishuHozen.DTO.*;
-
+import tata.JishuHozen.DTO.AreaResponseDTO;
 import tata.JishuHozen.Entity.DashboardStatsDTO;
 
 import tata.JishuHozen.Entity.users;
@@ -74,6 +74,12 @@ public class api
         return maintenanceService
                 .completeMaintenance(
                         dto);
+    }
+    @GetMapping("/areas")
+    public List<AreaResponseDTO>
+    getAreas()
+    {
+        return userService.getAreas();
     }
 
 }
