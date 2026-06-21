@@ -63,7 +63,7 @@ public class DailyMaintenanceScheduler
     }
 
     @Scheduled(
-            cron = "0 5 20 * * *",
+            cron = "0 5 21 * * *",
             zone = "Asia/Kolkata")
     public void markMissedMachines()
     {
