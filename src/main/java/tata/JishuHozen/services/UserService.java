@@ -228,22 +228,42 @@ public class UserService
     public String mapMachineToJhOwner(
             List<MachineJhOwnerMappingRequestDTO> dtoList)
     {
-        for(MachineJhOwnerMappingRequestDTO dto
-                : dtoList)
+        // Step 1: Pre-process to clear previous JHO mappings for machines in this batch.
+        // This avoids transient 1:1 conflicts during bulk swaps/reassignments.
+        for(MachineJhOwnerMappingRequestDTO dto : dtoList)
         {
             machines machine =
                     machineRepo.findById(
                                     dto.getMachineId())
                             .orElseThrow(
                                     () -> new RuntimeException(
-                                            "Machine Not Found"));
+                                            "Machine Not Found: " + dto.getMachineId()));
+            machine.setJhOwner(null);
+            machineRepo.saveAndFlush(machine);
+        }
+
+        // Step 2: Apply new JHO assignments
+        for(MachineJhOwnerMappingRequestDTO dto : dtoList)
+        {
+            machines machine =
+                    machineRepo.findById(
+                                    dto.getMachineId())
+                            .orElseThrow(
+                                    () -> new RuntimeException(
+                                            "Machine Not Found: " + dto.getMachineId()));
+
+            // If target JHO is null, empty, or "null", it remains unassigned
+            if(dto.getJhOwnerId() == null || dto.getJhOwnerId().trim().isEmpty() || dto.getJhOwnerId().equalsIgnoreCase("null"))
+            {
+                continue;
+            }
 
             users jhOwner =
                     userRepo.findById(
                                     dto.getJhOwnerId())
                             .orElseThrow(
                                     () -> new RuntimeException(
-                                            "JH Owner Not Found"));
+                                            "JH Owner Not Found: " + dto.getJhOwnerId()));
 
             if(jhOwner.getUserRole()
                     != users.UserRole.JH_OWNER)
@@ -253,43 +273,23 @@ public class UserService
                                 + dto.getJhOwnerId());
             }
 
-            if(machine.getJhOwner() != null)
-            {
-                if(machine.getJhOwner()
-                        .getUserId()
-                        .equals(dto.getJhOwnerId()))
-                {
-                    continue;
-                }
-
-                throw new RuntimeException(
-                        "Machine Already Assigned : "
-                                + dto.getMachineId());
-            }
-
+            // Verify 1:1 constraint in DB (exclude the current machine)
             machines existingMachine =
                     machineRepo.findByJhOwner_UserId(
                             dto.getJhOwnerId());
 
-            if(existingMachine != null)
+            if(existingMachine != null && !existingMachine.getMachineId().equals(machine.getMachineId()))
             {
-                if(existingMachine.getMachineId()
-                        .equals(dto.getMachineId()))
-                {
-                    continue;
-                }
-
                 throw new RuntimeException(
                         "JH Owner Already Assigned : "
                                 + dto.getJhOwnerId());
             }
-            machine.setJhOwner(jhOwner);
 
+            machine.setJhOwner(jhOwner);
             machineRepo.save(machine);
         }
 
         return "Mapping Successful";
-
     }
     public List<AreaResponseDTO>
     getAreas()
