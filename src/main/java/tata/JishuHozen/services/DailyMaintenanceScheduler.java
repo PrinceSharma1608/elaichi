@@ -26,7 +26,7 @@ public class DailyMaintenanceScheduler
     private final maintenanceLogsRepo logsRepo;
 
     @Scheduled(
-            cron = "0 0 0 * * *",
+            cron = "0 12 12 * * *",
             zone = "Asia/Kolkata")
     public void populateDailyTasks()
     {
@@ -63,7 +63,7 @@ public class DailyMaintenanceScheduler
     }
 
     @Scheduled(
-            cron = "0 5 21 * * *",
+            cron = "0 5 20 * * *",
             zone = "Asia/Kolkata")
     public void markMissedMachines()
     {
@@ -75,7 +75,8 @@ public class DailyMaintenanceScheduler
                                 .PENDING);
 
         for(CurrentDailyMaintenanceStatus
-                task : pendingTasks)
+                task
+                : pendingTasks)
         {
             machines machine =
                     task.getMachine();
