@@ -24,26 +24,19 @@ public class DailyMaintenanceScheduler
             statusRepo;
 
     private final maintenanceLogsRepo logsRepo;
-
     @Scheduled(
-            cron = "0 12 12 * * *",
+            cron = "0 0 00 * * *",
             zone = "Asia/Kolkata")
     public void populateDailyTasks()
     {
         List<machines> dueMachines =
                 machineRepo
-                        .findByMachineStatusAndNextMaintenanceDateLessThanEqual(
+                        .findByMachineStatusAndNextMaintenanceDate(
                                 machines.MachineStatus.ACTIVE,
                                 LocalDate.now());
 
         for(machines machine : dueMachines)
         {
-            if(statusRepo.existsById(
-                    machine.getMachineId()))
-            {
-                continue;
-            }
-
             CurrentDailyMaintenanceStatus status =
                     CurrentDailyMaintenanceStatus
                             .builder()
@@ -56,14 +49,23 @@ public class DailyMaintenanceScheduler
                                             .MaintenanceStatus
                                             .PENDING)
                             .audited(false)
+                            .completedBy(null)
+                            .updatedAt(null)
                             .build();
 
             statusRepo.save(status);
+
+            machine.setNextMaintenanceDate(
+                    machine.getNextMaintenanceDate()
+                            .plusDays(
+                                    machine
+                                            .getMaintenanceFrequencyDays()));
+
+            machineRepo.save(machine);
         }
     }
-
     @Scheduled(
-            cron = "0 5 20 * * *",
+            cron = "0 0 20 * * *",
             zone = "Asia/Kolkata")
     public void markMissedMachines()
     {
@@ -74,8 +76,7 @@ public class DailyMaintenanceScheduler
                                 .MaintenanceStatus
                                 .PENDING);
 
-        for(CurrentDailyMaintenanceStatus
-                task
+        for(CurrentDailyMaintenanceStatus task
                 : pendingTasks)
         {
             machines machine =
@@ -89,21 +90,24 @@ public class DailyMaintenanceScheduler
             machine.setDelayCount(
                     machine.getDelayCount() + 1);
 
-            machine.setNextMaintenanceDate(
-                    LocalDate.now()
-                            .plusDays(1));
-
             MaintenanceLogs log =
-                    MaintenanceLogs.builder()
+                    MaintenanceLogs
+                            .builder()
                             .machine(machine)
+                            .performedBy(null)
                             .maintenanceDate(
                                     LocalDateTime.now())
+                            .checklist(null)
+                            .remarks(
+                                    "Auto Marked As MISSED")
+                            .overallStatus(
+                                    MaintenanceLogs
+                                            .OverallStatus
+                                            .CRITICAL)
                             .completionType(
                                     MaintenanceLogs
                                             .CompletionType
                                             .MISSED)
-                            .remarks(
-                                    "Maintenance Missed")
                             .build();
 
             statusRepo.save(task);

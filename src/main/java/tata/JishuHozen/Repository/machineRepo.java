@@ -148,8 +148,8 @@ public interface machineRepo
             String jhOwnerId);
 
     List<machines>
-    findByMachineStatusAndNextMaintenanceDateLessThanEqual(
+    findByMachineStatusAndNextMaintenanceDate(
             machines.MachineStatus machineStatus,
-            LocalDate date);
+            LocalDate nextMaintenanceDate);
 
 }

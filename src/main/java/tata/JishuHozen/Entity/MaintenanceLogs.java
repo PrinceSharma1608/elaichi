@@ -46,8 +46,7 @@ public enum OverallStatus
     private LocalDateTime maintenanceDate;
 
     @Column(
-            name = "checklist",
-            columnDefinition = "jsonb"
+            name = "checklist"
     )
     private String checklist;
 

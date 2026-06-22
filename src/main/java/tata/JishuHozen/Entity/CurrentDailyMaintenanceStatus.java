@@ -2,6 +2,8 @@ package tata.JishuHozen.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,10 +15,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CurrentDailyMaintenanceStatus
-{
-    public enum MaintenanceStatus
-    {
+public class CurrentDailyMaintenanceStatus {
+    public enum MaintenanceStatus {
         PENDING,
         COMPLETED,
         MISSED
@@ -48,6 +48,7 @@ public class CurrentDailyMaintenanceStatus
     @ManyToOne
     @JoinColumn(name = "completed_by")
     private users completedBy;
+
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
