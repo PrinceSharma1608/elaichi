@@ -17,7 +17,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class DailyMaintenanceScheduler
+public class Scheduler
 {
     private final machineRepo machineRepo;
 
@@ -26,7 +26,7 @@ public class DailyMaintenanceScheduler
 
     private final maintenanceLogsRepo logsRepo;
     @Scheduled(
-            cron = "0 20 10 * * *",
+            cron = "0 00 00  * * *",
             zone = "Asia/Kolkata")
     public void populateDailyTasks()
     {
@@ -66,11 +66,10 @@ public class DailyMaintenanceScheduler
         }
     }
     @Scheduled(
-            cron = "0 25 10 * * *",
+            cron = "0 00 20 * * *",
             zone = "Asia/Kolkata")
     public void markMissedMachines()
     {
-        System.out.println(ZonedDateTime.now());
         List<CurrentDailyMaintenanceStatus>
                 pendingTasks =
                 statusRepo.findByMaintenanceStatus(

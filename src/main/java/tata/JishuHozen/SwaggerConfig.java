@@ -15,7 +15,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(
                         new Info()
-                                .title("Machine Maintenance Management System")
+                                .title("Jishu Hozen Management System")
                                 .description("Tata Machine Maintenance API")
                                 .version("1.0")
                                 .contact(
