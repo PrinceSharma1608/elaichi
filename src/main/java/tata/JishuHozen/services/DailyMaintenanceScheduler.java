@@ -12,6 +12,7 @@ import tata.JishuHozen.Repository.maintenanceLogsRepo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Component
@@ -65,10 +66,11 @@ public class DailyMaintenanceScheduler
         }
     }
     @Scheduled(
-            cron = "0 0 20 * * *",
+            cron = "0 58 8 * * *",
             zone = "Asia/Kolkata")
     public void markMissedMachines()
     {
+        System.out.println(ZonedDateTime.now());
         List<CurrentDailyMaintenanceStatus>
                 pendingTasks =
                 statusRepo.findByMaintenanceStatus(
