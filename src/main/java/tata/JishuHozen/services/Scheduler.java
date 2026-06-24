@@ -66,7 +66,7 @@ public class Scheduler
         }
     }
     @Scheduled(
-            cron = "0 51 14 * * *",
+            cron = "0 00 20 * * *",
             zone = "Asia/Kolkata")
     public void markMissedMachines()
     {
