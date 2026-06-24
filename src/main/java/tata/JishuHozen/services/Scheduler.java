@@ -66,7 +66,7 @@ public class Scheduler
         }
     }
     @Scheduled(
-            cron = "0 00 20 * * *",
+            cron = "0 51 14 * * *",
             zone = "Asia/Kolkata")
     public void markMissedMachines()
     {
@@ -102,14 +102,7 @@ public class Scheduler
                             .remarks(
                                     "Auto Marked As MISSED")
                             .overallStatus(
-                                    MaintenanceLogs
-                                            .OverallStatus
-                                            .CRITICAL)
-                            .completionType(
-                                    MaintenanceLogs
-                                            .CompletionType
-                                            .MISSED)
-                            .build();
+                                    MaintenanceLogs.OverallStatus.CRITICAL).completionType(MaintenanceLogs.CompletionType.MISSED).build();
 
             statusRepo.save(task);
 

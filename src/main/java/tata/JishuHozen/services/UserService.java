@@ -30,7 +30,10 @@ public class UserService
     private teamLeaderJhOwnerMappingRepo mappingRepo;
     @Autowired
     private currentDailyMaintenanceStatusRepo currentDailyMaintenanceStatusRepo;
-
+@Autowired
+private auditLogsRepo auditLogsRepo;
+@Autowired
+private maintenanceLogsRepo maintenanceLogsRepo;
     public List<DailyDashboardDTO>
     getDailyDashboard(
             String userId)
@@ -312,6 +315,18 @@ public class UserService
                                                 : null)
                                 .build())
                 .toList();
+    }
+    public List<MaintenanceLogDTO>
+    getMaintenanceLogs()
+    {
+        return maintenanceLogsRepo
+                .getAllLogs();
+    }
+    public List<AuditLogDTO>
+    getAuditLogs()
+    {
+        return auditLogsRepo
+                .getAllLogs();
     }
 }
 

@@ -1,6 +1,7 @@
 package tata.JishuHozen.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tata.JishuHozen.DTO.*;
 import tata.JishuHozen.DTO.AreaResponseDTO;
@@ -81,5 +82,18 @@ public class api
     {
         return userService.getAreas();
     }
-
+    @GetMapping("/maintenance/logs")
+    public ResponseEntity<List<MaintenanceLogDTO>>
+    getMaintenanceLogs()
+    {
+        return ResponseEntity.ok(
+                userService.getMaintenanceLogs());
+    }
+    @GetMapping("/audit/logs")
+    public ResponseEntity<List<AuditLogDTO>>
+    getAuditLogs()
+    {
+        return ResponseEntity.ok(
+                userService.getAuditLogs());
+    }
 }
