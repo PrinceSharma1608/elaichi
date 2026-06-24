@@ -26,7 +26,7 @@ public class DailyMaintenanceScheduler
 
     private final maintenanceLogsRepo logsRepo;
     @Scheduled(
-            cron = "0 0 00 * * *",
+            cron = "0 05 9 * * *",
             zone = "Asia/Kolkata")
     public void populateDailyTasks()
     {
@@ -66,7 +66,7 @@ public class DailyMaintenanceScheduler
         }
     }
     @Scheduled(
-            cron = "0 58 8 * * *",
+            cron = "0 10 9 * * *",
             zone = "Asia/Kolkata")
     public void markMissedMachines()
     {
