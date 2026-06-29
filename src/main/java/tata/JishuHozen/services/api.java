@@ -1,15 +1,20 @@
 package tata.JishuHozen.services;
-
+import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import tata.JishuHozen.Auth.AuthController;
+import tata.JishuHozen.Auth.AuthService;
 import tata.JishuHozen.DTO.*;
 import tata.JishuHozen.DTO.AreaResponseDTO;
-import tata.JishuHozen.Entity.DashboardStatsDTO;
 
 import tata.JishuHozen.Entity.users;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/fetch")
@@ -82,7 +87,7 @@ public class api
     {
         return userService.getAreas();
     }
-    @GetMapping("/maintenance/logs")
+  /*  @GetMapping("/maintenance/logs")
     public ResponseEntity<List<MaintenanceLogDTO>>
     getMaintenanceLogs()
     {
@@ -95,5 +100,27 @@ public class api
     {
         return ResponseEntity.ok(
                 userService.getAuditLogs());
+    }*/
+    @PostMapping("/done")
+    public HttpStatus done(@RequestBody SendInfoDTO dto)
+    {
+        if(Objects.equals(dto.userId, "TEAM_LEADER"))
+
+        return HttpStatus.OK;
+        else
+            return HttpStatus.BAD_REQUEST;
+    }
+    @PostMapping("/audit")
+    public ResponseEntity<String> createAudit(
+            @RequestBody AuditRequestDTO dto,
+            Authentication authentication)
+            throws JsonProcessingException
+    {
+        String userId = authentication.getName();
+
+        return ResponseEntity.ok(
+                userService.createAudit(
+                        userId,
+                        dto));
     }
 }

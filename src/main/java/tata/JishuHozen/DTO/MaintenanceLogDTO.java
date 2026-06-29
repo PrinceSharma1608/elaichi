@@ -2,25 +2,22 @@ package tata.JishuHozen.DTO;
 
 import java.time.LocalDateTime;
 
-public interface MaintenanceLogDTO
+public class MaintenanceLogDTO
 {
-    Integer getLogId();
+    Integer getLogId;
 
-    String getMachineId();
+    String getMachineId;
 
-    String getMachineName();
+    String getMachineName;
 
-    String getPerformedById();
+    String getPerformedById;
 
-    String getPerformedByName();
+    String getPerformedByName;
 
-    LocalDateTime getMaintenanceDate();
+    LocalDateTime getMaintenanceDate;
 
-    String getChecklist();
+    String getChecklist;
 
-    String getRemarks();
-
-    String getOverallStatus();
-
-    String getCompletionType();
+    String getRemarks;
+    String getCompletionType;
 }

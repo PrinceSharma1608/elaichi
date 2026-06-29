@@ -39,11 +39,10 @@ public class MaintenanceService
                                 () -> new RuntimeException(
                                         "User Not Found"));
 
-        if(jho.getUserRole()
-                != users.UserRole.JH_OWNER)
+        if((jho.getUserRole() != users.UserRole.JH_OWNER)||(jho.getUserRole() != users.UserRole.TEAM_LEADER))
         {
             throw new RuntimeException(
-                    "Only JH Owner Can Complete Maintenance");
+                    "Only JH Owner or TeamLeader Can Complete Maintenance");
         }
 
         machines machine =
@@ -98,11 +97,6 @@ public class MaintenanceService
         machine.setLastMaintenanceDate(
                 LocalDate.now());
 
-        machine.setNextMaintenanceDate(
-                LocalDate.now()
-                        .plusDays(
-                                machine
-                                        .getMaintenanceFrequencyDays()));
 
         MaintenanceLogs log =
                 MaintenanceLogs.builder()
@@ -114,10 +108,7 @@ public class MaintenanceService
                                 dto.getChecklist())
                         .remarks(
                                 dto.getRemarks())
-                        .overallStatus(
-                                MaintenanceLogs
-                                        .OverallStatus
-                                        .GOOD)
+
                         .build();
 
         statusRepo.save(status);

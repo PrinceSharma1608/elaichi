@@ -1,22 +1,29 @@
 package tata.JishuHozen.DTO;
 
+import lombok.*;
+
 import java.time.LocalDateTime;
 
-public interface AuditLogDTO
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class AuditLogDTO
 {
-    Integer getAuditId();
+    private Integer auditId;
 
-    String getMachineId();
+    private String machineId;
 
-    String getMachineName();
+    private String machineName;
 
-    String getAuditedById();
+    private String auditedById;
 
-    String getAuditedByName();
+    private String auditedByName;
 
-    LocalDateTime getAuditDate();
+    private LocalDateTime auditDate;
 
-    String getAuditResult();
+    private String checklist;
 
-    String getFindings();
+    private String findings;
 }

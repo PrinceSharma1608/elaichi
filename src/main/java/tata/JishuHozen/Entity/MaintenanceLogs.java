@@ -1,6 +1,5 @@
 package tata.JishuHozen.Entity;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,18 +14,12 @@ import java.time.LocalDateTime;
 @Builder
 public class MaintenanceLogs
 {
-public enum OverallStatus
-{
-    GOOD,
-    WARNING,
-    CRITICAL
-}
 
     public enum CompletionType
     {
         COMPLETED,
         MISSED,
-        CANCELLED
+        DONE_MANUALLY
     }
 
     @Id
@@ -52,11 +45,6 @@ public enum OverallStatus
 
     @Column(name = "remarks")
     private String remarks;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "overall_status")
-    private OverallStatus overallStatus;
-
 
     @Enumerated(EnumType.STRING)
     @Column(name = "completion_type")

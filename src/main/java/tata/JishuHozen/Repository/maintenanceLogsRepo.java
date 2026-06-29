@@ -10,7 +10,7 @@ import java.util.List;
 public interface maintenanceLogsRepo
         extends JpaRepository<MaintenanceLogs,Integer>
 {
-    @Query("""
+  /*  @Query("""
             SELECT
             ml.logId AS logId,
             m.machineId AS machineId,
@@ -20,12 +20,11 @@ public interface maintenanceLogsRepo
             ml.maintenanceDate AS maintenanceDate,
             ml.checklist AS checklist,
             ml.remarks AS remarks,
-            ml.overallStatus AS overallStatus,
             ml.completionType AS completionType
             FROM MaintenanceLogs ml
             LEFT JOIN ml.machine m
             LEFT JOIN ml.performedBy u
             ORDER BY ml.maintenanceDate DESC
             """)
-    List<MaintenanceLogDTO> getAllLogs();
+    List<MaintenanceLogDTO> getAllLogs();*/
 }

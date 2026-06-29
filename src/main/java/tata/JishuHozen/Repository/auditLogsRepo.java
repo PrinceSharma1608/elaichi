@@ -11,19 +11,19 @@ public interface auditLogsRepo
         extends JpaRepository<AuditLogs,Integer>
 {
     @Query("""
-            SELECT
-            al.auditId AS auditId,
-            m.machineId AS machineId,
-            m.machineName AS machineName,
-            u.userId AS auditedById,
-            u.userName AS auditedByName,
-            al.auditDate AS auditDate,
-            al.auditResult AS auditResult,
-            al.findings AS findings
-            FROM AuditLogs al
-            JOIN al.machine m
-            JOIN al.auditedBy u
-            ORDER BY al.auditDate DESC
-            """)
+SELECT
+al.auditId AS auditId,
+m.machineId AS machineId,
+m.machineName AS machineName,
+u.userId AS auditedById,
+u.userName AS auditedByName,
+al.auditDate AS auditDate,
+al.checklist AS checklist,
+al.findings AS findings
+FROM AuditLogs al
+JOIN al.machine m
+JOIN al.auditedBy u
+ORDER BY al.auditDate DESC
+""")
     List<AuditLogDTO> getAllLogs();
 }

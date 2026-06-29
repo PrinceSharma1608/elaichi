@@ -101,8 +101,7 @@ public class Scheduler
                             .checklist(null)
                             .remarks(
                                     "Auto Marked As MISSED")
-                            .overallStatus(
-                                    MaintenanceLogs.OverallStatus.CRITICAL).completionType(MaintenanceLogs.CompletionType.MISSED).build();
+                            .completionType(MaintenanceLogs.CompletionType.MISSED).build();
 
             statusRepo.save(task);
 

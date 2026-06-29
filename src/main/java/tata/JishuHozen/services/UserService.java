@@ -3,6 +3,7 @@ package tata.JishuHozen.services;
 import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tata.JishuHozen.DTO.*;
 
 import tata.JishuHozen.Entity.*;
@@ -14,6 +15,7 @@ import tata.JishuHozen.Entity.users;
 
 import tata.JishuHozen.Repository.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -30,10 +32,9 @@ public class UserService
     private teamLeaderJhOwnerMappingRepo mappingRepo;
     @Autowired
     private currentDailyMaintenanceStatusRepo currentDailyMaintenanceStatusRepo;
-@Autowired
-private auditLogsRepo auditLogsRepo;
-@Autowired
-private maintenanceLogsRepo maintenanceLogsRepo;
+    @Autowired
+    private  auditLogsRepo auditLogsRepo;
+
     public List<DailyDashboardDTO>
     getDailyDashboard(
             String userId)
@@ -294,8 +295,7 @@ private maintenanceLogsRepo maintenanceLogsRepo;
 
         return "Mapping Successful";
     }
-    public List<AreaResponseDTO>
-    getAreas()
+    public List<AreaResponseDTO> getAreas()
     {
         return areaRepo.findAll()
                 .stream()
@@ -316,17 +316,49 @@ private maintenanceLogsRepo maintenanceLogsRepo;
                                 .build())
                 .toList();
     }
-    public List<MaintenanceLogDTO>
-    getMaintenanceLogs()
+    @Transactional
+    public String createAudit(
+            String userId,
+            AuditRequestDTO dto)
     {
-        return maintenanceLogsRepo
-                .getAllLogs();
-    }
-    public List<AuditLogDTO>
-    getAuditLogs()
-    {
-        return auditLogsRepo
-                .getAllLogs();
+        users auditor =
+                userRepo.findById(userId)
+                        .orElseThrow(
+                                () -> new RuntimeException(
+                                        "Auditor Not Found"));
+
+        if(auditor.getUserRole()
+                != users.UserRole.SUPERVISOR
+                &&
+                auditor.getUserRole()
+                        != users.UserRole.LINE_INCHARGE)
+        {
+            throw new RuntimeException(
+                    "Only Supervisor and Line Incharge can audit");
+        }
+
+        machines machine =
+                machineRepo.findById(
+                                dto.getMachineId())
+                        .orElseThrow(
+                                () -> new RuntimeException(
+                                        "Machine Not Found"));
+
+        AuditLogs audit =
+                AuditLogs.builder()
+                        .machine(machine)
+                        .auditedBy(auditor)
+                        .auditDate(
+                                LocalDateTime.now())
+                        .checklist(
+                                dto.getChecklist().toString())
+                        .findings(
+                                dto.getFindings())
+                        .build();
+
+        auditLogsRepo.save(audit);
+
+        return "Audit Saved Successfully";
     }
 }
 

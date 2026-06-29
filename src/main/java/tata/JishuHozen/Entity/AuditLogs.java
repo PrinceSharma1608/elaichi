@@ -15,11 +15,6 @@ import java.time.LocalDateTime;
 
 public class AuditLogs
 {
-    public enum AuditResult
-    {
-        PASS,
-        FAIL
-    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "audit_id")
@@ -35,11 +30,11 @@ public class AuditLogs
 
     @Column(name = "audit_date")
     private LocalDateTime auditDate;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "audit_result")
-    private AuditResult auditResult;
-
+    @Column(
+            name = "checklist",
+            columnDefinition = "jsonb"
+    )
+    private String checklist;
     @Column(name = "findings")
     private String findings;
 }
