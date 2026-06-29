@@ -357,7 +357,8 @@ public class UserService
                         .build();
 
         auditLogsRepo.save(audit);
-
+        CurrentDailyMaintenanceStatus cdms = currentDailyMaintenanceStatusRepo.findById(dto.getMachineId()).orElseThrow(() -> new RuntimeException("Machine Not Found"));
+                    cdms.setAudited(true);
         return "Audit Saved Successfully";
     }
 }
