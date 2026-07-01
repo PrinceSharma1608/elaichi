@@ -344,14 +344,20 @@ public class UserService
                                 () -> new RuntimeException(
                                         "Machine Not Found"));
 
+        String checklistJson;
+        try {
+            checklistJson = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(dto.getChecklist());
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize checklist map to JSON", e);
+        }
+
         AuditLogs audit =
                 AuditLogs.builder()
                         .machine(machine)
                         .auditedBy(auditor)
                         .auditDate(
                                 LocalDateTime.now())
-                        .checklist(
-                                dto.getChecklist().toString())
+                        .checklist(checklistJson)
                         .findings(
                                 dto.getFindings())
                         .build();
