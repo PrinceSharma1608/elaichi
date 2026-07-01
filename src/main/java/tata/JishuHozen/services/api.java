@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-//import org.springframework.security.core.Authentication;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import tata.JishuHozen.Auth.AuthController;
 import tata.JishuHozen.Auth.AuthService;
@@ -110,17 +110,16 @@ public class api
         else
             return HttpStatus.BAD_REQUEST;
     }
-   /* @PostMapping("/audit")
+    @PostMapping("/audit")
     public ResponseEntity<String> createAudit(
             @RequestBody AuditRequestDTO dto,
             Authentication authentication)
-            throws JsonProcessingException
-    {
+            throws JsonProcessingException {
         String userId = authentication.getName();
 
         return ResponseEntity.ok(
                 userService.createAudit(
                         userId,
                         dto));
-    }*/
+    }
 }
