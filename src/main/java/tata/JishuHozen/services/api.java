@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import tata.JishuHozen.Auth.AuthController;
 import tata.JishuHozen.Auth.AuthService;
+import tata.JishuHozen.Auth.JwtUtil;
 import tata.JishuHozen.DTO.*;
 import tata.JishuHozen.DTO.AreaResponseDTO;
 
@@ -25,6 +26,8 @@ public class api
 
     private final MaintenanceService
             maintenanceService;
+
+    private final JwtUtil jwtUtil;
 
     @GetMapping("/users")
     public List<UserResponseDTO> getUsers(
@@ -113,9 +116,13 @@ public class api
     @PostMapping("/audit")
     public ResponseEntity<String> createAudit(
             @RequestBody AuditRequestDTO dto,
-            Authentication authentication)
+            @RequestHeader("Authorization") String authorizationHeader)
             throws JsonProcessingException {
-        String userId = authentication.getName();
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid token");
+        }
+        String token = authorizationHeader.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(token);
 
         return ResponseEntity.ok(
                 userService.createAudit(
