@@ -15,6 +15,7 @@ import tata.JishuHozen.DTO.*;
 import tata.JishuHozen.DTO.AreaResponseDTO;
 
 import tata.JishuHozen.Entity.users;
+import tata.JishuHozen.Entity.TeamLeaderJhOwnerMapping;
 
 import java.util.List;
 import java.util.Objects;
@@ -66,6 +67,12 @@ public class api
     {
         return userService
                 .createTeamLeaderMapping(dto);
+    }
+
+    @GetMapping("/tl-jhoMap")
+    public List<TeamLeaderJhOwnerMapping> getTlJhoMappings()
+    {
+        return userService.getTlJhoMappings();
     }
 
     @PutMapping("/machine-jhoMap")

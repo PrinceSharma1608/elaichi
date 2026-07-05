@@ -560,5 +560,9 @@ public class UserService
         return
                 "Maintenance Completed Successfully";
     }
+
+    public List<TeamLeaderJhOwnerMapping> getTlJhoMappings() {
+        return teamLeaderJhOwnerMappingRepo.findAll();
+    }
 }
 
