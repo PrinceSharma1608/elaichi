@@ -27,7 +27,6 @@ public class api
     private final UserService userService;
     private final JwtHelper jwtHelper;
     private final MaintenanceService maintenanceService;
-private final MaintenanceCompletionDTO MaintenanceCompleteDTO;
     private final JwtUtil jwtUtil;
 
     @GetMapping("/users")
@@ -76,14 +75,6 @@ private final MaintenanceCompletionDTO MaintenanceCompleteDTO;
                 .mapMachineToJhOwner(dtoList);
     }
 
-    @PutMapping("/maintenance/complete")
-    public String completeMaintenance(
-            @RequestBody
-            MaintenanceCompletionDTO dto)
-    {
-        return maintenanceService
-                .completeMaintenance(dto);
-    }
     @GetMapping("/areas")
     public List<AreaResponseDTO>
     getAreas()
@@ -104,15 +95,7 @@ private final MaintenanceCompletionDTO MaintenanceCompleteDTO;
         return ResponseEntity.ok(
                 userService.getAuditLogs());
     }*/
-    @PostMapping("/done")
-    public HttpStatus done(@RequestBody SendInfoDTO dto)
-    {
-        if(Objects.equals(dto.userId, "TEAM_LEADER"))
 
-        return HttpStatus.OK;
-        else
-            return HttpStatus.BAD_REQUEST;
-    }
     @PostMapping("/audit")
     public ResponseEntity<String> createAudit(
             @RequestBody AuditRequestDTO dto,

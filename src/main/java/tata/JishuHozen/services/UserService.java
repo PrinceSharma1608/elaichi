@@ -431,18 +431,14 @@ public class UserService
      */
         if(role.equals("TEAM_LEADER"))
         {
-            TeamLeaderJhOwnerMapping mapping =
+            boolean allowed =
                     teamLeaderJhOwnerMappingRepo
-                            .findByJhowner_UserId(
+                            .existsByJhOwnerIdAndTeamLeaderId(
                                     machine.getJhOwner()
-                                            .getUserId())
-                            .orElseThrow(
-                                    () -> new RuntimeException(
-                                            "Mapping Not Found"));
+                                            .getUserId(),
+                                    userId);
 
-            if(!mapping.getTeamLeader()
-                    .getUserId()
-                    .equals(userId))
+            if(!allowed)
             {
                 throw new RuntimeException(
                         "Unauthorized");

@@ -10,10 +10,13 @@ public interface teamLeaderJhOwnerMappingRepo
         extends JpaRepository<TeamLeaderJhOwnerMapping,String>
 {
     List<TeamLeaderJhOwnerMapping>
-    findByTeamLeaderId(String teamLeaderId);
+    findByTeamLeaderId(
+            String teamLeaderId);
+
     boolean existsByJhOwnerId(
             String jhOwnerId);
-    Optional<TeamLeaderJhOwnerMapping>
-    findByJhowner_UserId(
-            String userId);
+
+    boolean existsByJhOwnerIdAndTeamLeaderId(
+            String jhOwnerId,
+            String teamLeaderId);
 }
