@@ -1,5 +1,6 @@
 package tata.JishuHozen.services;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -12,12 +13,13 @@ import tata.JishuHozen.Repository.maintenanceLogsRepo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class Scheduler
+
 {
     private final machineRepo machineRepo;
 
@@ -25,8 +27,7 @@ public class Scheduler
             statusRepo;
 
     private final maintenanceLogsRepo logsRepo;
-    @Scheduled(
-            cron = "0 00 00  * * *",
+    @Scheduled(cron = "0 00 00  * * *",
             zone = "Asia/Kolkata")
     public void populateDailyTasks()
     {
@@ -38,7 +39,44 @@ public class Scheduler
 
         for(machines machine : dueMachines)
         {
-            CurrentDailyMaintenanceStatus status =
+            Optional<
+                                CurrentDailyMaintenanceStatus>
+                    existing =
+                    statusRepo.findById(
+                            machine.getMachineId());
+
+            if(existing.isPresent())
+            {
+                CurrentDailyMaintenanceStatus
+                        cdms =
+                        existing.get();
+
+                if(cdms.getMaintenanceStatus()
+                        ==
+                        CurrentDailyMaintenanceStatus
+                                .MaintenanceStatus
+                                .MISSED)
+                {
+                    cdms.setMaintenanceStatus(
+                            CurrentDailyMaintenanceStatus
+                                    .MaintenanceStatus
+                                    .PENDING);
+
+                    cdms.setMaintenanceDate(
+                            LocalDate.now());
+
+                    cdms.setAudited(false);
+
+                    cdms.setCompletedBy(null);
+
+                    statusRepo.save(cdms);
+                }
+
+                continue;
+            }
+
+            CurrentDailyMaintenanceStatus
+                    status =
                     CurrentDailyMaintenanceStatus
                             .builder()
                             .machineId(
@@ -50,8 +88,6 @@ public class Scheduler
                                             .MaintenanceStatus
                                             .PENDING)
                             .audited(false)
-                            .completedBy(null)
-                            .updatedAt(null)
                             .build();
 
             statusRepo.save(status);
@@ -64,6 +100,23 @@ public class Scheduler
 
             machineRepo.save(machine);
         }
+    }
+    @Scheduled(
+            cron = "0 0 0 * * *",
+            zone = "Asia/Kolkata")
+    @Transactional
+    public void clearCompletedTasks()
+    {
+        statusRepo.deleteByMaintenanceStatusIn(
+                List.of(
+                        CurrentDailyMaintenanceStatus
+                                .MaintenanceStatus
+                                .COMPLETED,
+
+                        CurrentDailyMaintenanceStatus
+                                .MaintenanceStatus
+                                .DONE_MANUALLY
+                ));
     }
     @Scheduled(
             cron = "0 00 20 * * *",

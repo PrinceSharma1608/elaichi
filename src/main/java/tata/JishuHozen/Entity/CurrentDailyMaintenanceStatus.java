@@ -16,10 +16,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class CurrentDailyMaintenanceStatus {
-    public enum MaintenanceStatus {
+    public enum MaintenanceStatus
+    {
         PENDING,
         COMPLETED,
-        MISSED
+        MISSED,
+        DONE_MANUALLY
     }
 
     @Id

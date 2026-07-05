@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tata.JishuHozen.DTO.MaintenanceCompleteDTO;
+import tata.JishuHozen.DTO.MaintenanceCompletionDTO;
 import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatus;
 import tata.JishuHozen.Entity.MaintenanceLogs;
 import tata.JishuHozen.Entity.machines;
@@ -30,7 +31,7 @@ public class MaintenanceService
 
     @Transactional
     public String completeMaintenance(
-            MaintenanceCompleteDTO dto)
+            @org.jetbrains.annotations.UnknownNullability MaintenanceCompletionDTO dto)
     {
         users jho =
                 userRepo.findById(

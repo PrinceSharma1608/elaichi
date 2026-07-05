@@ -2,18 +2,18 @@ package tata.JishuHozen.DTO;
 
 import lombok.*;
 
+import java.util.Map;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MaintenanceCompleteDTO
+public class MaintenanceCompletionDTO
 {
     private String machineId;
 
-    private String userId;
-
-    private String checklist;
+    private Map<String, Boolean> checklist;
 
     private String remarks;
 }

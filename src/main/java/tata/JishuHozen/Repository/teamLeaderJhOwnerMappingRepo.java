@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import tata.JishuHozen.Entity.TeamLeaderJhOwnerMapping;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface teamLeaderJhOwnerMappingRepo
         extends JpaRepository<TeamLeaderJhOwnerMapping,String>
@@ -12,4 +13,7 @@ public interface teamLeaderJhOwnerMappingRepo
     findByTeamLeaderId(String teamLeaderId);
     boolean existsByJhOwnerId(
             String jhOwnerId);
+    Optional<TeamLeaderJhOwnerMapping>
+    findByJhowner_UserId(
+            String userId);
 }

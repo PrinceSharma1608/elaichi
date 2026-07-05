@@ -1,4 +1,5 @@
 package tata.JishuHozen.services;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import tata.JishuHozen.Auth.AuthController;
 import tata.JishuHozen.Auth.AuthService;
+import tata.JishuHozen.Auth.JwtHelper;
 import tata.JishuHozen.Auth.JwtUtil;
 import tata.JishuHozen.DTO.*;
 import tata.JishuHozen.DTO.AreaResponseDTO;
@@ -23,10 +25,9 @@ import java.util.Objects;
 public class api
 {
     private final UserService userService;
-
-    private final MaintenanceService
-            maintenanceService;
-
+    private final JwtHelper jwtHelper;
+    private final MaintenanceService maintenanceService;
+private final MaintenanceCompletionDTO MaintenanceCompleteDTO;
     private final JwtUtil jwtUtil;
 
     @GetMapping("/users")
@@ -78,11 +79,10 @@ public class api
     @PutMapping("/maintenance/complete")
     public String completeMaintenance(
             @RequestBody
-            MaintenanceCompleteDTO dto)
+            MaintenanceCompletionDTO dto)
     {
         return maintenanceService
-                .completeMaintenance(
-                        dto);
+                .completeMaintenance(dto);
     }
     @GetMapping("/areas")
     public List<AreaResponseDTO>
@@ -128,5 +128,27 @@ public class api
                 userService.createAudit(
                         userId,
                         dto));
+    }
+    @PostMapping("/maintenance/complete")
+    public ResponseEntity<String>
+    completeMaintenance(
+            @RequestBody
+            MaintenanceCompletionDTO dto,
+            HttpServletRequest request)
+            throws JsonProcessingException
+    {
+        String userId =
+                jwtHelper.getUserId(request);
+
+        String role =
+                jwtHelper.getRole(request);
+
+        return ResponseEntity.ok(
+                userService.completeMaintenance(
+                        userId,
+                        role,
+                        dto
+                )
+        );
     }
 }

@@ -1,5 +1,7 @@
 package tata.JishuHozen.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import tata.JishuHozen.Entity.users;
 
 import tata.JishuHozen.Repository.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,7 +37,10 @@ public class UserService
     private currentDailyMaintenanceStatusRepo currentDailyMaintenanceStatusRepo;
     @Autowired
     private  auditLogsRepo auditLogsRepo;
-
+    @Autowired
+    private maintenanceLogsRepo maintenanceLogsRepo;
+    @Autowired
+    private  teamLeaderJhOwnerMappingRepo teamLeaderJhOwnerMappingRepo;
     public List<DailyDashboardDTO>
     getDailyDashboard(
             String userId)
@@ -366,6 +372,175 @@ public class UserService
         CurrentDailyMaintenanceStatus cdms = currentDailyMaintenanceStatusRepo.findById(dto.getMachineId().toUpperCase()).orElseThrow(() -> new RuntimeException("Machine Not Found"));
                     cdms.setAudited(true);
         return "Audit Saved Successfully";
+    }
+
+    @Transactional
+    public String completeMaintenance(
+            String userId,
+            String role,
+            MaintenanceCompletionDTO dto)
+            throws JsonProcessingException
+    {
+        if(!role.equals("JH_OWNER")
+                &&
+                !role.equals("TEAM_LEADER"))
+        {
+            throw new RuntimeException(
+                    "Unauthorized");
+        }
+
+        users user =
+                userRepo.findById(userId)
+                        .orElseThrow(
+                                () -> new RuntimeException(
+                                        "User Not Found"));
+
+        machines machine =
+                machineRepo.findById(
+                                dto.getMachineId())
+                        .orElseThrow(
+                                () -> new RuntimeException(
+                                        "Machine Not Found"));
+
+        CurrentDailyMaintenanceStatus cdms =
+                currentDailyMaintenanceStatusRepo
+                        .findById(
+                                dto.getMachineId())
+                        .orElseThrow(
+                                () -> new RuntimeException(
+                                        "No Maintenance Scheduled"));
+
+    /*
+        JH can only do his machine
+     */
+        if(role.equals("JH_OWNER"))
+        {
+            if(machine.getJhOwner() == null
+                    ||
+                    !machine.getJhOwner()
+                            .getUserId()
+                            .equals(userId))
+            {
+                throw new RuntimeException(
+                        "Unauthorized");
+            }
+        }
+
+    /*
+        TL can only do mapped JH machines
+     */
+        if(role.equals("TEAM_LEADER"))
+        {
+            TeamLeaderJhOwnerMapping mapping =
+                    teamLeaderJhOwnerMappingRepo
+                            .findByJhowner_UserId(
+                                    machine.getJhOwner()
+                                            .getUserId())
+                            .orElseThrow(
+                                    () -> new RuntimeException(
+                                            "Mapping Not Found"));
+
+            if(!mapping.getTeamLeader()
+                    .getUserId()
+                    .equals(userId))
+            {
+                throw new RuntimeException(
+                        "Unauthorized");
+            }
+        }
+
+        ObjectMapper mapper =
+                new ObjectMapper();
+
+        String checklistJson =
+                mapper.writeValueAsString(
+                        dto.getChecklist());
+
+        MaintenanceLogs.CompletionType
+                completionType;
+
+    /*
+        TL is always manual.
+     */
+        if(role.equals("TEAM_LEADER"))
+        {
+            completionType =
+                    MaintenanceLogs
+                            .CompletionType
+                            .DONE_MANUALLY;
+
+            cdms.setMaintenanceStatus(
+                    CurrentDailyMaintenanceStatus
+                            .MaintenanceStatus
+                            .DONE_MANUALLY);
+        }
+    /*
+        If machine already MISSED,
+        then completion is manual.
+     */
+        else if(
+                cdms.getMaintenanceStatus()
+                        ==
+                        CurrentDailyMaintenanceStatus
+                                .MaintenanceStatus
+                                .MISSED)
+        {
+            completionType =
+                    MaintenanceLogs
+                            .CompletionType
+                            .DONE_MANUALLY;
+
+            cdms.setMaintenanceStatus(
+                    CurrentDailyMaintenanceStatus
+                            .MaintenanceStatus
+                            .DONE_MANUALLY);
+        }
+    /*
+        Normal completion.
+     */
+        else
+        {
+            completionType =
+                    MaintenanceLogs
+                            .CompletionType
+                            .COMPLETED;
+
+            cdms.setMaintenanceStatus(
+                    CurrentDailyMaintenanceStatus
+                            .MaintenanceStatus
+                            .COMPLETED);
+        }
+
+        machine.setDelayCount(0);
+
+        machine.setLastMaintenanceDate(
+                LocalDate.now());
+
+        cdms.setCompletedBy(user);
+
+        MaintenanceLogs log =
+                MaintenanceLogs.builder()
+                        .machine(machine)
+                        .performedBy(user)
+                        .maintenanceDate(
+                                LocalDateTime.now())
+                        .checklist(
+                                checklistJson)
+                        .remarks(
+                                dto.getRemarks())
+                        .completionType(
+                                completionType)
+                        .build();
+
+        maintenanceLogsRepo.save(log);
+
+        machineRepo.save(machine);
+
+        currentDailyMaintenanceStatusRepo
+                .save(cdms);
+
+        return
+                "Maintenance Completed Successfully";
     }
 }
 
