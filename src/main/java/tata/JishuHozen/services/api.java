@@ -142,4 +142,25 @@ public class api
                 )
         );
     }
+    @PutMapping("/machine/configuration")
+    public ResponseEntity<String>
+    updateMachineConfiguration(
+            @RequestBody
+            UpdateMachineConfigurationDTO dto,
+            HttpServletRequest request)
+    {
+        String role =
+                jwtHelper.getRole(request);
+
+        if(!role.equals("LINE_INCHARGE"))
+        {
+            throw new RuntimeException(
+                    "Unauthorized");
+        }
+
+        return ResponseEntity.ok(
+                userService
+                        .updateMachineConfiguration(
+                                dto));
+    }
 }

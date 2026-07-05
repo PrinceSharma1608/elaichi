@@ -564,5 +564,71 @@ public class UserService
     public List<TeamLeaderJhOwnerMapping> getTlJhoMappings() {
         return teamLeaderJhOwnerMappingRepo.findAll();
     }
+    @Transactional
+    public String updateMachineConfiguration(
+            UpdateMachineConfigurationDTO dto)
+    {
+        machines machine =
+                machineRepo.findById(
+                                dto.getMachineId())
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "Machine Not Found"));
+
+        if(dto.getMaintenanceFrequencyDays()
+                != null)
+        {
+            machine.setMaintenanceFrequencyDays(
+                    dto.getMaintenanceFrequencyDays());
+        }
+
+        if(dto.getLastMaintenanceDate()
+                != null)
+        {
+            machine.setLastMaintenanceDate(
+                    dto.getLastMaintenanceDate());
+        }
+
+        if(dto.getFlag() != null)
+        {
+            machine.setFlag(
+                    machines.Flag
+                            .valueOf(
+                                    dto.getFlag()));
+        }
+
+        if(dto.getMachineStatus()
+                != null)
+        {
+            machine.setMachineStatus(
+                    machines.MachineStatus
+                            .valueOf(
+                                    dto.getMachineStatus()));
+        }
+
+        LocalDate nextDate =
+                machine.getLastMaintenanceDate()
+                        .plusDays(
+                                machine
+                                        .getMaintenanceFrequencyDays());
+
+        while(nextDate.isBefore(
+                LocalDate.now()))
+        {
+            nextDate =
+                    nextDate.plusDays(
+                            machine
+                                    .getMaintenanceFrequencyDays());
+        }
+
+        machine.setNextMaintenanceDate(
+                nextDate);
+
+        machineRepo.save(machine);
+
+        return
+                "Machine configuration updated successfully";
+    }
 }
 
