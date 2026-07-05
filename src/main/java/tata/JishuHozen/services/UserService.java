@@ -184,56 +184,78 @@ public class UserService
         return "Supervisor Mapped Successfully";
     }
 
-    public String mapTeamLeaderToJhOwner(
+    @Transactional
+    public String createTeamLeaderMapping(
             TeamLeaderJhOwnerMappingDTO dto)
     {
         users teamLeader =
                 userRepo.findById(
                                 dto.getTeamLeaderId())
                         .orElseThrow(
-                                () -> new RuntimeException(
-                                        "Team Leader Not Found"));
-
-        users jhOwner =
-                userRepo.findById(
-                                dto.getJhOwnerId())
-                        .orElseThrow(
-                                () -> new RuntimeException(
-                                        "JH Owner Not Found"));
+                                () ->
+                                        new RuntimeException(
+                                                "Team Leader Not Found"));
 
         if(teamLeader.getUserRole()
                 != users.UserRole.TEAM_LEADER)
         {
             throw new RuntimeException(
-                    "Invalid Team Leader");
+                    "User is not a Team Leader");
         }
 
-        if(jhOwner.getUserRole()
-                != users.UserRole.JH_OWNER)
+        // 1. Delete all existing mappings for this Team Leader
+        List<TeamLeaderJhOwnerMapping> existingMappings =
+                teamLeaderJhOwnerMappingRepo.findByTeamLeaderId(dto.getTeamLeaderId());
+        if (existingMappings != null && !existingMappings.isEmpty()) {
+            teamLeaderJhOwnerMappingRepo.deleteAll(existingMappings);
+            teamLeaderJhOwnerMappingRepo.flush();
+        }
+
+        // 2. Save the new mappings
+        for(String jhId :
+                dto.getJhOwnerIds())
         {
-            throw new RuntimeException(
-                    "Invalid JH Owner");
+            users jhOwner =
+                    userRepo.findById(jhId)
+                            .orElseThrow(
+                                    () ->
+                                            new RuntimeException(
+                                                    "JH Owner Not Found : "
+                                                            + jhId));
+
+            if(jhOwner.getUserRole()
+                    != users.UserRole.JH_OWNER)
+            {
+                throw new RuntimeException(
+                        jhId +
+                                " is not a JH Owner");
+            }
+
+            if(teamLeaderJhOwnerMappingRepo
+                    .existsByJhOwnerId(
+                            jhId))
+            {
+                throw new RuntimeException(
+                        "JH Owner "
+                                + jhId
+                                + " is already mapped");
+            }
+
+            TeamLeaderJhOwnerMapping
+                    mapping =
+                    TeamLeaderJhOwnerMapping
+                            .builder()
+                            .jhOwnerId(
+                                    jhId)
+                            .teamLeaderId(
+                                    dto.getTeamLeaderId())
+                            .build();
+
+            teamLeaderJhOwnerMappingRepo
+                    .save(mapping);
         }
 
-        if(mappingRepo.existsByJhOwnerId(
-                dto.getJhOwnerId()))
-        {
-            throw new RuntimeException(
-                    "JH Owner Already Mapped");
-        }
-
-        TeamLeaderJhOwnerMapping mapping =
-                new TeamLeaderJhOwnerMapping();
-
-        mapping.setJhOwnerId(
-                dto.getJhOwnerId());
-
-        mapping.setTeamLeaderId(
-                dto.getTeamLeaderId());
-
-        mappingRepo.save(mapping);
-
-        return "Mapping Successful";
+        return "Mapping created successfully";
     }
     public String mapMachineToJhOwner(
             List<MachineJhOwnerMappingRequestDTO> dtoList)

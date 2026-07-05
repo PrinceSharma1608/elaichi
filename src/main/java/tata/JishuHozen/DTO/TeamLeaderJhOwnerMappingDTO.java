@@ -1,15 +1,16 @@
-
 package tata.JishuHozen.DTO;
 
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class TeamLeaderJhOwnerMappingDTO
 {
     private String teamLeaderId;
-
-    private String jhOwnerId;
+    private List<String> jhOwnerIds;
 }

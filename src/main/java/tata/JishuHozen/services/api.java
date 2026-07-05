@@ -65,8 +65,9 @@ public class api
             TeamLeaderJhOwnerMappingDTO dto)
     {
         return userService
-                .mapTeamLeaderToJhOwner(dto);
+                .createTeamLeaderMapping(dto);
     }
+
     @PutMapping("/machine-jhoMap")
     public String mapMachineToJhOwner(@RequestBody
             List<MachineJhOwnerMappingRequestDTO> dtoList)
@@ -81,7 +82,7 @@ public class api
     {
         return userService.getAreas();
     }
-  /*  @GetMapping("/maintenance/logs")
+  /* @GetMapping("/maintenance/logs")
     public ResponseEntity<List<MaintenanceLogDTO>>
     getMaintenanceLogs()
     {
