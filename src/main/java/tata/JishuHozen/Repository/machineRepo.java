@@ -36,7 +36,13 @@ public interface machineRepo
             s.userName,
 
             tl.userId,
-            tl.userName
+            tl.userName,
+
+            m.maintenanceFrequencyDays,
+            m.lastMaintenanceDate,
+            m.nextMaintenanceDate,
+            m.machineStatus,
+            m.flag
         )
         FROM machines m
 
@@ -72,7 +78,12 @@ public interface machineRepo
         s.userId,
         s.userName,
         tl.userId,
-        tl.userName
+        tl.userName,
+        m.maintenanceFrequencyDays,
+        m.lastMaintenanceDate,
+        m.nextMaintenanceDate,
+        m.machineStatus,
+        m.flag
     )
     FROM machines m
     LEFT JOIN m.area a
@@ -102,7 +113,12 @@ public interface machineRepo
         s.userId,
         s.userName,
         tl.userId,
-        tl.userName
+        tl.userName,
+        m.maintenanceFrequencyDays,
+        m.lastMaintenanceDate,
+        m.nextMaintenanceDate,
+        m.machineStatus,
+        m.flag
     )
     FROM machines m
     LEFT JOIN m.area a
@@ -132,7 +148,12 @@ public interface machineRepo
         s.userId,
         s.userName,
         tl.userId,
-        tl.userName
+        tl.userName,
+        m.maintenanceFrequencyDays,
+        m.lastMaintenanceDate,
+        m.nextMaintenanceDate,
+        m.machineStatus,
+        m.flag
     )
     FROM machines m
     LEFT JOIN m.area a

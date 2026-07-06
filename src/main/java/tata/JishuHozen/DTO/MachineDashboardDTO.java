@@ -27,4 +27,10 @@ public class MachineDashboardDTO
 
     private String teamLeaderId;
     private String teamLeaderName;
+
+    private Integer maintenanceFrequencyDays;
+    private java.time.LocalDate lastMaintenanceDate;
+    private java.time.LocalDate nextMaintenanceDate;
+    private tata.JishuHozen.Entity.machines.MachineStatus machineStatus;
+    private tata.JishuHozen.Entity.machines.Flag flag;
 }
