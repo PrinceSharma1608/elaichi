@@ -2,8 +2,6 @@ package tata.JishuHozen.DTO;
 
 import lombok.*;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,11 +11,13 @@ public class UpdateMachineConfigurationDTO
 {
     private String machineId;
 
+    private String jhOwnerId;
+
     private Integer maintenanceFrequencyDays;
 
-    private LocalDate lastMaintenanceDate;
-
-    private String flag;
+    private String subarea;
 
     private String machineStatus;
+
+    private String flag;
 }

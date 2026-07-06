@@ -5,11 +5,13 @@ import org.springframework.data.jpa.repository.Query;
 import tata.JishuHozen.DTO.MachineDashboardDTO;
 import tata.JishuHozen.Entity.machines;
 import org.springframework.data.repository.query.Param;
+import tata.JishuHozen.Entity.users;
 
 
 import java.time.LocalDate;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface machineRepo
         extends JpaRepository<machines,String>
@@ -151,5 +153,6 @@ public interface machineRepo
     findByMachineStatusAndNextMaintenanceDate(
             machines.MachineStatus machineStatus,
             LocalDate nextMaintenanceDate);
-
+    Optional<machines>
+    findByJhOwner(users jhOwner);
 }

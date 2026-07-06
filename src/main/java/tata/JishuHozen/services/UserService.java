@@ -20,6 +20,7 @@ import tata.JishuHozen.Repository.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -576,6 +577,49 @@ public class UserService
                                         new RuntimeException(
                                                 "Machine Not Found"));
 
+    /*
+        Update JH Owner
+     */
+        if(dto.getJhOwnerId() != null)
+        {
+            users jhOwner =
+                    userRepo.findById(
+                                    dto.getJhOwnerId())
+                            .orElseThrow(
+                                    () ->
+                                            new RuntimeException(
+                                                    "JH Owner Not Found"));
+
+            if(jhOwner.getUserRole()
+                    != users.UserRole.JH_OWNER)
+            {
+                throw new RuntimeException(
+                        "User is not a JH Owner");
+            }
+
+            Optional<machines>
+                    assignedMachine =
+                    machineRepo.findByJhOwner(
+                            jhOwner);
+
+            if(assignedMachine.isPresent()
+                    &&
+                    !assignedMachine.get()
+                            .getMachineId()
+                            .equals(
+                                    machine.getMachineId()))
+            {
+                throw new RuntimeException(
+                        "JH Owner already assigned to another machine");
+            }
+
+            machine.setJhOwner(
+                    jhOwner);
+        }
+
+    /*
+        Update Frequency
+     */
         if(dto.getMaintenanceFrequencyDays()
                 != null)
         {
@@ -583,13 +627,29 @@ public class UserService
                     dto.getMaintenanceFrequencyDays());
         }
 
-        if(dto.getLastMaintenanceDate()
-                != null)
+    /*
+        Update Subarea
+     */
+        if(dto.getSubarea() != null)
         {
-            machine.setLastMaintenanceDate(
-                    dto.getLastMaintenanceDate());
+            machine.setSubarea(
+                    dto.getSubarea());
         }
 
+    /*
+        Update Machine Status
+     */
+        if(dto.getMachineStatus() != null)
+        {
+            machine.setMachineStatus(
+                    machines.MachineStatus
+                            .valueOf(
+                                    dto.getMachineStatus()));
+        }
+
+    /*
+        Update Flag
+     */
         if(dto.getFlag() != null)
         {
             machine.setFlag(
@@ -598,28 +658,21 @@ public class UserService
                                     dto.getFlag()));
         }
 
-        if(dto.getMachineStatus()
-                != null)
-        {
-            machine.setMachineStatus(
-                    machines.MachineStatus
-                            .valueOf(
-                                    dto.getMachineStatus()));
-        }
+    /*
+        Recalculate Next Maintenance Date
+     */
 
         LocalDate nextDate =
                 machine.getLastMaintenanceDate()
                         .plusDays(
-                                machine
-                                        .getMaintenanceFrequencyDays());
+                                machine.getMaintenanceFrequencyDays());
 
         while(nextDate.isBefore(
                 LocalDate.now()))
         {
             nextDate =
                     nextDate.plusDays(
-                            machine
-                                    .getMaintenanceFrequencyDays());
+                            machine.getMaintenanceFrequencyDays());
         }
 
         machine.setNextMaintenanceDate(
@@ -628,7 +681,7 @@ public class UserService
         machineRepo.save(machine);
 
         return
-                "Machine configuration updated successfully";
+                "Machine Configuration Updated Successfully";
     }
 }
 
