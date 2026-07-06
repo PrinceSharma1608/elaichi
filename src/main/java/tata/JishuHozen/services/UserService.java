@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tata.JishuHozen.DTO.*;
 
 import tata.JishuHozen.Entity.*;
-import tata.JishuHozen.DTO.AreaResponseDTO;
+import tata.JishuHozen.DTO .AreaResponseDTO;
 import tata.JishuHozen.Entity.TeamLeaderJhOwnerMapping;
 import tata.JishuHozen.Entity.area;
 import tata.JishuHozen.Entity.machines;
