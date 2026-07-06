@@ -2,7 +2,6 @@ package tata.JishuHozen.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import tata.JishuHozen.DTO.MaintenanceLogDTO;
 import tata.JishuHozen.Entity.MaintenanceLogs;
 
 import java.util.List;

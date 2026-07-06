@@ -683,5 +683,74 @@ public class UserService
         return
                 "Machine Configuration Updated Successfully";
     }
+    @Transactional(readOnly = true)
+    public List<MaintenanceLogResponseDTO>
+    getAllMaintenanceLogs()
+    {
+        return maintenanceLogsRepo
+                .findAll()
+                .stream()
+                .map(log ->
+                        MaintenanceLogResponseDTO
+                                .builder()
+                                .logId(
+                                        log.getLogId())
+                                .machineId(
+                                        log.getMachine()
+                                                .getMachineId())
+                                .machineName(
+                                        log.getMachine()
+                                                .getMachineName())
+                                .performedById(
+                                        log.getPerformedBy()
+                                                .getUserId())
+                                .performedByName(
+                                        log.getPerformedBy()
+                                                .getUserName())
+                                .maintenanceDate(
+                                        log.getMaintenanceDate())
+                                .checklist(
+                                        log.getChecklist())
+                                .remarks(
+                                        log.getRemarks())
+                                .completionType(
+                                        log.getCompletionType()
+                                                .name())
+                                .build())
+                .toList();
+    }
+    @Transactional(readOnly = true)
+    public List<AuditLogResponseDTO>
+    getAllAuditLogs()
+    {
+        return auditLogsRepo
+                .findAll()
+                .stream()
+                .map(log ->
+                        AuditLogResponseDTO
+                                .builder()
+                                .auditId(
+                                        log.getAuditId())
+                                .machineId(
+                                        log.getMachine()
+                                                .getMachineId())
+                                .machineName(
+                                        log.getMachine()
+                                                .getMachineName())
+                                .auditorId(
+                                        log.getAuditedBy()
+                                                .getUserId())
+                                .auditorName(
+                                        log.getAuditedBy()
+                                                .getUserName())
+                                .auditDate(
+                                        log.getAuditDate())
+                                .checklist(
+                                        log.getChecklist())
+                                .findings(
+                                        log.getFindings())
+                                .build())
+                .toList();
+    }
 }
 

@@ -30,6 +30,7 @@ public class AuditLogs
 
     @Column(name = "audit_date")
     private LocalDateTime auditDate;
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
     @Column(
             name = "checklist",
             columnDefinition = "jsonb"

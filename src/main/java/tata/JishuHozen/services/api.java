@@ -89,20 +89,24 @@ public class api
     {
         return userService.getAreas();
     }
-  /* @GetMapping("/maintenance/logs")
-    public ResponseEntity<List<MaintenanceLogDTO>>
-    getMaintenanceLogs()
+    @GetMapping("/maintenance-logs")
+    public ResponseEntity<
+            List<MaintenanceLogResponseDTO>>
+    getAllMaintenanceLogs()
     {
         return ResponseEntity.ok(
-                userService.getMaintenanceLogs());
+                userService
+                        .getAllMaintenanceLogs());
     }
-    @GetMapping("/audit/logs")
-    public ResponseEntity<List<AuditLogDTO>>
-    getAuditLogs()
-    {
-        return ResponseEntity.ok(
-                userService.getAuditLogs());
-    }*/
+@GetMapping("/audit-logs")
+public ResponseEntity<
+        List<AuditLogResponseDTO>>
+getAllAuditLogs()
+{
+    return ResponseEntity.ok(
+            userService
+                    .getAllAuditLogs());
+}
 
     @PostMapping("/audit")
     public ResponseEntity<String> createAudit(

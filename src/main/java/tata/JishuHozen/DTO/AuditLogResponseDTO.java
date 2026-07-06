@@ -1,7 +1,6 @@
 package tata.JishuHozen.DTO;
 
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 @Getter
@@ -9,7 +8,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AuditLogDTO
+public class AuditLogResponseDTO
 {
     private Integer auditId;
 
@@ -17,9 +16,9 @@ public class AuditLogDTO
 
     private String machineName;
 
-    private String auditedById;
+    private String auditorId;
 
-    private String auditedByName;
+    private String auditorName;
 
     private LocalDateTime auditDate;
 
