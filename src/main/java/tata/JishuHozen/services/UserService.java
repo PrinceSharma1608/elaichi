@@ -702,11 +702,11 @@ public class UserService
                                         log.getMachine()
                                                 .getMachineName())
                                 .performedById(
-                                        log.getPerformedBy()
-                                                .getUserId())
+                                        log.getPerformedBy() != null ?
+                                                log.getPerformedBy().getUserId() : null)
                                 .performedByName(
-                                        log.getPerformedBy()
-                                                .getUserName())
+                                        log.getPerformedBy() != null ?
+                                                log.getPerformedBy().getUserName() : "Unknown")
                                 .maintenanceDate(
                                         log.getMaintenanceDate())
                                 .checklist(
@@ -738,11 +738,11 @@ public class UserService
                                         log.getMachine()
                                                 .getMachineName())
                                 .auditorId(
-                                        log.getAuditedBy()
-                                                .getUserId())
+                                        log.getAuditedBy() != null ?
+                                                log.getAuditedBy().getUserId() : null)
                                 .auditorName(
-                                        log.getAuditedBy()
-                                                .getUserName())
+                                        log.getAuditedBy() != null ?
+                                                log.getAuditedBy().getUserName() : "Unknown")
                                 .auditDate(
                                         log.getAuditDate())
                                 .checklist(
