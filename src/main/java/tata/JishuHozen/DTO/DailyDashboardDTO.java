@@ -14,7 +14,9 @@ public class DailyDashboardDTO
 
     private String machineName;
 
-    private CurrentDailyMaintenanceStatus.MaintenanceStatus maintenanceStatus;
+    private Integer frequencyDays;
 
-    private Boolean audited;
+    private CurrentDailyMaintenanceStatus
+            .MaintenanceStatus
+            maintenanceStatus;
 }

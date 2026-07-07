@@ -23,6 +23,6 @@ public class AuditLogResponseDTO
     private LocalDateTime auditDate;
 
     private String checklist;
-
+    private Integer frequencyDays;
     private String findings;
 }

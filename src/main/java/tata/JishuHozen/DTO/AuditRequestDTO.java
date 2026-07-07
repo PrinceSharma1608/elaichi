@@ -2,6 +2,7 @@ package tata.JishuHozen.DTO;
 
 import lombok.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -9,11 +10,13 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AuditRequestDTO
-{
+public class AuditRequestDTO {
     private String machineId;
 
-    private Map<String, Boolean> checklist;
+    private Integer frequencyDays;
+
+    private List<MaintenanceChecklistItemDTO>
+            checklist;
 
     private String findings;
 }

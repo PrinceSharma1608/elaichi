@@ -34,7 +34,8 @@ public class MaintenanceLogs
     @ManyToOne
     @JoinColumn(name = "performed_by")
     private users performedBy;
-
+    @Column(name = "frequency_days")
+    private Integer frequencyDays;
     @Column(name = "maintenance_date")
     private LocalDateTime maintenanceDate;
 

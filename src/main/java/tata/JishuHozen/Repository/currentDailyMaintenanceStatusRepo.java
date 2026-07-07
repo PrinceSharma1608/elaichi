@@ -8,9 +8,7 @@ import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatus;
 import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatusId;
 
 import java.util.List;
-
 import java.util.Optional;
-
 
 public interface currentDailyMaintenanceStatusRepo
         extends JpaRepository
@@ -24,16 +22,18 @@ public interface currentDailyMaintenanceStatusRepo
             CurrentDailyMaintenanceStatus
                     .MaintenanceStatus
                     status);
+
     Optional<CurrentDailyMaintenanceStatus>
     findByMachineIdAndFrequencyDays(
             String machineId,
             Integer frequencyDays);
+
     @Query("""
         SELECT new tata.JishuHozen.DTO.DailyDashboardDTO(
             m.machineId,
             m.machineName,
-            c.maintenanceStatus,
-            c.audited
+            c.frequencyDays,
+            c.maintenanceStatus
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
@@ -41,13 +41,12 @@ public interface currentDailyMaintenanceStatusRepo
     List<DailyDashboardDTO>
     getDailyDashboard();
 
-
     @Query("""
         SELECT new tata.JishuHozen.DTO.DailyDashboardDTO(
             m.machineId,
             m.machineName,
-            c.maintenanceStatus,
-            c.audited
+            c.frequencyDays,
+            c.maintenanceStatus
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
@@ -60,13 +59,12 @@ public interface currentDailyMaintenanceStatusRepo
             @Param("supervisorId")
             String supervisorId);
 
-
     @Query("""
         SELECT new tata.JishuHozen.DTO.DailyDashboardDTO(
             m.machineId,
             m.machineName,
-            c.maintenanceStatus,
-            c.audited
+            c.frequencyDays,
+            c.maintenanceStatus
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
@@ -80,13 +78,12 @@ public interface currentDailyMaintenanceStatusRepo
             @Param("teamLeaderId")
             String teamLeaderId);
 
-
     @Query("""
         SELECT new tata.JishuHozen.DTO.DailyDashboardDTO(
             m.machineId,
             m.machineName,
-            c.maintenanceStatus,
-            c.audited
+            c.frequencyDays,
+            c.maintenanceStatus
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
@@ -98,16 +95,16 @@ public interface currentDailyMaintenanceStatusRepo
             @Param("jhOwnerId")
             String jhOwnerId);
 
-    Optional<CurrentDailyMaintenanceStatus>
-    findByMachine_MachineId(
-            String machineId);
     long countByMaintenanceStatus(
             CurrentDailyMaintenanceStatus
                     .MaintenanceStatus
                     status);
+
     void deleteByMaintenanceStatusIn(
-            List<CurrentDailyMaintenanceStatus
-                    .MaintenanceStatus> statuses);
+            List<
+                    CurrentDailyMaintenanceStatus
+                            .MaintenanceStatus
+                    > statuses);
 
     void deleteByMaintenanceStatus(
             CurrentDailyMaintenanceStatus

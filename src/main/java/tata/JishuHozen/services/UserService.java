@@ -44,6 +44,8 @@ public class UserService
     private maintenanceLogsRepo maintenanceLogsRepo;
     @Autowired
     private  teamLeaderJhOwnerMappingRepo teamLeaderJhOwnerMappingRepo;
+    @Autowired
+    private MaintenanceService maintenanceService;
     public List<DailyDashboardDTO>
     getDailyDashboard(
             String userId)
@@ -355,8 +357,9 @@ public class UserService
         users auditor =
                 userRepo.findById(userId)
                         .orElseThrow(
-                                () -> new RuntimeException(
-                                        "Auditor Not Found"));
+                                () ->
+                                        new RuntimeException(
+                                                "Auditor Not Found"));
 
         if(auditor.getUserRole()
                 != users.UserRole.SUPERVISOR
@@ -370,35 +373,58 @@ public class UserService
 
         machines machine =
                 machineRepo.findById(
-                                dto.getMachineId().toUpperCase())
+                                dto.getMachineId()
+                                        .toUpperCase())
                         .orElseThrow(
-                                () -> new RuntimeException(
-                                        "Machine Not Found"));
+                                () ->
+                                        new RuntimeException(
+                                                "Machine Not Found"));
 
         String checklistJson;
-        try {
-            checklistJson = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(dto.getChecklist());
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            throw new RuntimeException("Failed to serialize checklist map to JSON", e);
+
+        try
+        {
+            checklistJson =
+                    new ObjectMapper()
+                            .writeValueAsString(
+                                    dto.getChecklist());
         }
+        catch (JsonProcessingException e)
+        {
+            throw new RuntimeException(
+                    "Checklist Serialization Failed");
+        }
+
+        CurrentDailyMaintenanceStatusId id =
+                new CurrentDailyMaintenanceStatusId(
+                        dto.getMachineId(),
+                        dto.getFrequencyDays());
+
+        currentDailyMaintenanceStatusRepo
+                .findById(id)
+                .orElseThrow(
+                        () ->
+                                new RuntimeException(
+                                        "Maintenance Task Not Found"));
 
         AuditLogs audit =
                 AuditLogs.builder()
                         .machine(machine)
+                        .frequencyDays(
+                                dto.getFrequencyDays())
                         .auditedBy(auditor)
                         .auditDate(
                                 LocalDateTime.now())
-                        .checklist(checklistJson)
+                        .checklist(
+                                checklistJson)
                         .findings(
                                 dto.getFindings())
                         .build();
 
         auditLogsRepo.save(audit);
-        CurrentDailyMaintenanceStatus cdms = currentDailyMaintenanceStatusRepo.findById(dto.getMachineId().toUpperCase()).orElseThrow(() -> new RuntimeException("Machine Not Found"));
-                    cdms.setAudited(true);
+
         return "Audit Saved Successfully";
     }
-
     @Transactional
     public String completeMaintenance(
             String userId,
@@ -406,164 +432,12 @@ public class UserService
             MaintenanceCompletionDTO dto)
             throws JsonProcessingException
     {
-        if(!role.equals("JH_OWNER")
-                &&
-                !role.equals("TEAM_LEADER"))
-        {
-            throw new RuntimeException(
-                    "Unauthorized");
-        }
-
-        users user =
-                userRepo.findById(userId)
-                        .orElseThrow(
-                                () -> new RuntimeException(
-                                        "User Not Found"));
-
-        machines machine =
-                machineRepo.findById(
-                                dto.getMachineId())
-                        .orElseThrow(
-                                () -> new RuntimeException(
-                                        "Machine Not Found"));
-
-        CurrentDailyMaintenanceStatus cdms =
-                currentDailyMaintenanceStatusRepo
-                        .findById(
-                                dto.getMachineId())
-                        .orElseThrow(
-                                () -> new RuntimeException(
-                                        "No Maintenance Scheduled"));
-
-    /*
-        JH can only do his machine
-     */
-        if(role.equals("JH_OWNER"))
-        {
-            if(machine.getJhOwner() == null
-                    ||
-                    !machine.getJhOwner()
-                            .getUserId()
-                            .equals(userId))
-            {
-                throw new RuntimeException(
-                        "Unauthorized");
-            }
-        }
-
-    /*
-        TL can only do mapped JH machines
-     */
-        if(role.equals("TEAM_LEADER"))
-        {
-            boolean allowed =
-                    teamLeaderJhOwnerMappingRepo
-                            .existsByJhOwnerIdAndTeamLeaderId(
-                                    machine.getJhOwner()
-                                            .getUserId(),
-                                    userId);
-
-            if(!allowed)
-            {
-                throw new RuntimeException(
-                        "Unauthorized");
-            }
-        }
-
-        ObjectMapper mapper =
-                new ObjectMapper();
-
-        String checklistJson =
-                mapper.writeValueAsString(
-                        dto.getChecklist());
-
-        MaintenanceLogs.CompletionType
-                completionType;
-
-    /*
-        TL is always manual.
-     */
-        if(role.equals("TEAM_LEADER"))
-        {
-            completionType =
-                    MaintenanceLogs
-                            .CompletionType
-                            .DONE_MANUALLY;
-
-            cdms.setMaintenanceStatus(
-                    CurrentDailyMaintenanceStatus
-                            .MaintenanceStatus
-                            .DONE_MANUALLY);
-        }
-    /*
-        If machine already MISSED,
-        then completion is manual.
-     */
-        else if(
-                cdms.getMaintenanceStatus()
-                        ==
-                        CurrentDailyMaintenanceStatus
-                                .MaintenanceStatus
-                                .MISSED)
-        {
-            completionType =
-                    MaintenanceLogs
-                            .CompletionType
-                            .DONE_MANUALLY;
-
-            cdms.setMaintenanceStatus(
-                    CurrentDailyMaintenanceStatus
-                            .MaintenanceStatus
-                            .DONE_MANUALLY);
-        }
-    /*
-        Normal completion.
-     */
-        else
-        {
-            completionType =
-                    MaintenanceLogs
-                            .CompletionType
-                            .COMPLETED;
-
-            cdms.setMaintenanceStatus(
-                    CurrentDailyMaintenanceStatus
-                            .MaintenanceStatus
-                            .COMPLETED);
-        }
-
-        machine.setDelayCount(0);
-
-        machine.setLastMaintenanceDate(
-                LocalDate.now());
-
-        cdms.setCompletedBy(user);
-
-        MaintenanceLogs log =
-                MaintenanceLogs.builder()
-                        .machine(machine)
-                        .performedBy(user)
-                        .maintenanceDate(
-                                LocalDateTime.now())
-                        .checklist(
-                                checklistJson)
-                        .remarks(
-                                dto.getRemarks())
-                        .completionType(
-                                completionType)
-                        .build();
-
-        maintenanceLogsRepo.save(log);
-
-        machineRepo.save(machine);
-
-        currentDailyMaintenanceStatusRepo
-                .save(cdms);
-
-        return
-                "Maintenance Completed Successfully";
+        return maintenanceService
+                .completeMaintenance(
+                        userId,
+                        role,
+                        dto);
     }
-
     public List<TeamLeaderJhOwnerMapping> getTlJhoMappings() {
         return teamLeaderJhOwnerMappingRepo.findAll();
     }
@@ -703,6 +577,8 @@ public class UserService
                                 .machineName(
                                         log.getMachine()
                                                 .getMachineName())
+                                .frequencyDays(
+                                        log.getFrequencyDays())
                                 .performedById(
                                         log.getPerformedBy() != null ?
                                                 log.getPerformedBy().getUserId() : null)
@@ -739,6 +615,8 @@ public class UserService
                                 .machineName(
                                         log.getMachine()
                                                 .getMachineName())
+                                .frequencyDays(
+                                        log.getFrequencyDays())
                                 .auditorId(
                                         log.getAuditedBy() != null ?
                                                 log.getAuditedBy().getUserId() : null)

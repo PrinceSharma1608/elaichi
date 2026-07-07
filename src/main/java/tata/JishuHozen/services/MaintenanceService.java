@@ -12,16 +12,15 @@ import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatusId;
 import tata.JishuHozen.Entity.MaintenanceLogs;
 import tata.JishuHozen.Entity.machines;
 import tata.JishuHozen.Entity.users;
-import tata.JishuHozen.Repository.currentDailyMaintenanceStatusRepo;
-import tata.JishuHozen.Repository.machineRepo;
-import tata.JishuHozen.Repository.maintenanceLogsRepo;
-import tata.JishuHozen.Repository.teamLeaderJhOwnerMappingRepo;
-import tata.JishuHozen.Repository.userRepo;
+import tata.JishuHozen.Repository.*;
+
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-
+import tata.JishuHozen.Entity.MachineChecklist;
+import tata.JishuHozen.Entity.MachineChecklistId;
+import tata.JishuHozen.Repository.machineChecklistRepo;
 @Service
 @RequiredArgsConstructor
 public class MaintenanceService
@@ -29,7 +28,8 @@ public class MaintenanceService
     private final currentDailyMaintenanceStatusRepo statusRepo;
 
     private final machineRepo machineRepo;
-
+    private final machineChecklistRepo
+            machineChecklistRepo;
     private final maintenanceLogsRepo logsRepo;
 
     private final teamLeaderJhOwnerMappingRepo
@@ -201,6 +201,8 @@ public class MaintenanceService
         MaintenanceLogs log =
                 MaintenanceLogs.builder()
                         .machine(machine)
+                        .frequencyDays(
+                                dto.getFrequencyDays())
                         .performedBy(user)
                         .maintenanceDate(
                                 LocalDateTime.now())
@@ -217,6 +219,26 @@ public class MaintenanceService
         machineRepo.save(machine);
 
         logsRepo.save(log);
+
+        MachineChecklistId checklistId =
+                new MachineChecklistId(
+                        dto.getMachineId(),
+                        dto.getFrequencyDays());
+
+        MachineChecklist checklist =
+                machineChecklistRepo
+                        .findById(
+                                checklistId)
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "Checklist Not Found"));
+
+        checklist.setLastCompletedDate(
+                LocalDate.now());
+
+        machineChecklistRepo.save(
+                checklist);
 
         return "Maintenance Completed Successfully";
     }

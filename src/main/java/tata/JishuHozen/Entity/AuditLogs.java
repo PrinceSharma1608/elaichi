@@ -23,7 +23,8 @@ public class AuditLogs
     @ManyToOne
     @JoinColumn(name = "machine_id")
     private machines machine;
-
+    @Column(name = "frequency_days")
+    private Integer frequencyDays;
     @ManyToOne
     @JoinColumn(name = "audited_by")
     private users auditedBy;

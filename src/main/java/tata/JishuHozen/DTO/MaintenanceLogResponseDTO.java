@@ -27,4 +27,5 @@ public class MaintenanceLogResponseDTO
     private String remarks;
 
     private String completionType;
+    private Integer frequencyDays;
 }
