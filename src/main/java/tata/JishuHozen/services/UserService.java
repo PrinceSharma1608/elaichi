@@ -669,14 +669,7 @@ public class UserService
             }
         }
 
-        if(machineChecklistRepo
-                .existsByMachineIdAndFrequencyDays(
-                        dto.getMachineId(),
-                        dto.getFrequencyDays()))
-        {
-            throw new RuntimeException(
-                    "Checklist already exists for this frequency");
-        }
+
 
         ObjectMapper mapper =
                 new ObjectMapper();
