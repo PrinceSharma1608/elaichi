@@ -1,166 +1,199 @@
 package tata.JishuHozen.services;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatus;
-import tata.JishuHozen.Entity.MaintenanceLogs;
+import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatusId;
+import tata.JishuHozen.Entity.MachineChecklist;
 import tata.JishuHozen.Entity.machines;
 import tata.JishuHozen.Repository.currentDailyMaintenanceStatusRepo;
+import tata.JishuHozen.Repository.machineChecklistRepo;
 import tata.JishuHozen.Repository.machineRepo;
-import tata.JishuHozen.Repository.maintenanceLogsRepo;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Service
 @RequiredArgsConstructor
+@Slf4j
 public class Scheduler
-
 {
-    private final machineRepo machineRepo;
+    private final machineChecklistRepo
+            machineChecklistRepo;
 
     private final currentDailyMaintenanceStatusRepo
             statusRepo;
-
-    private final maintenanceLogsRepo logsRepo;
-    @Scheduled(cron = "0 00 00  * * *",
-            zone = "Asia/Kolkata")
-    public void populateDailyTasks()
+    private final  machineRepo machineRepo;
+    /*
+        Every day at 12:00 AM
+     */
+    @Transactional
+    @Scheduled(cron = "0 0 0 * * *")
+    public void midnightScheduler()
     {
-        List<machines> dueMachines =
-                machineRepo
-                        .findByMachineStatusAndNextMaintenanceDate(
-                                machines.MachineStatus.ACTIVE,
+        log.info(
+                "Running Midnight Scheduler");
+
+        /*
+            Remove completed entries.
+         */
+        statusRepo.deleteByMaintenanceStatus(
+                CurrentDailyMaintenanceStatus
+                        .MaintenanceStatus
+                        .COMPLETED);
+
+        statusRepo.deleteByMaintenanceStatus(
+                CurrentDailyMaintenanceStatus
+                        .MaintenanceStatus
+                        .DONE_MANUALLY);
+
+        /*
+            Fetch all due checklists.
+         */
+        List<MachineChecklist>
+                dueChecklists =
+                machineChecklistRepo
+                        .findByNextDueDate(
                                 LocalDate.now());
 
-        for(machines machine : dueMachines)
+        for (MachineChecklist checklist
+                : dueChecklists)
         {
-            Optional<
-                                CurrentDailyMaintenanceStatus>
-                    existing =
-                    statusRepo.findById(
-                            machine.getMachineId());
+            CurrentDailyMaintenanceStatusId id =
+                    new CurrentDailyMaintenanceStatusId(
+                            checklist.getMachineId(),
+                            checklist.getFrequencyDays());
 
-            if(existing.isPresent())
+            Optional<CurrentDailyMaintenanceStatus>
+                    existing =
+                    statusRepo.findById(id);
+
+            /*
+                If previous cycle is MISSED,
+                convert it into PENDING.
+             */
+            if (existing.isPresent())
             {
                 CurrentDailyMaintenanceStatus
-                        cdms =
+                        old =
                         existing.get();
 
-                if(cdms.getMaintenanceStatus()
+                if (old.getMaintenanceStatus()
                         ==
                         CurrentDailyMaintenanceStatus
                                 .MaintenanceStatus
                                 .MISSED)
                 {
-                    cdms.setMaintenanceStatus(
+                    old.setMaintenanceStatus(
                             CurrentDailyMaintenanceStatus
                                     .MaintenanceStatus
                                     .PENDING);
 
-                    cdms.setMaintenanceDate(
+                    old.setMaintenanceDate(
                             LocalDate.now());
 
-                    cdms.setAudited(false);
+                    old.setChecklist(
+                            null);
 
-                    cdms.setCompletedBy(null);
+                    old.setCompletedBy(
+                            null);
 
-                    statusRepo.save(cdms);
+                    statusRepo.save(
+                            old);
                 }
+            }
+            else
+            {
+                CurrentDailyMaintenanceStatus
+                        cdms =
+                        CurrentDailyMaintenanceStatus
+                                .builder()
+                                .machineId(
+                                        checklist.getMachineId())
+                                .frequencyDays(
+                                        checklist.getFrequencyDays())
+                                .maintenanceDate(
+                                        LocalDate.now())
+                                .maintenanceStatus(
+                                        CurrentDailyMaintenanceStatus
+                                                .MaintenanceStatus
+                                                .PENDING)
+                                .build();
 
-                continue;
+                statusRepo.save(
+                        cdms);
             }
 
-            CurrentDailyMaintenanceStatus
-                    status =
-                    CurrentDailyMaintenanceStatus
-                            .builder()
-                            .machineId(
-                                    machine.getMachineId())
-                            .maintenanceDate(
-                                    LocalDate.now())
-                            .maintenanceStatus(
-                                    CurrentDailyMaintenanceStatus
-                                            .MaintenanceStatus
-                                            .PENDING)
-                            .audited(false)
-                            .build();
+            /*
+                Immediately move
+                next due date.
+             */
+            checklist.setLastCompletedDate(
+                    LocalDate.now());
 
-            statusRepo.save(status);
-
-            machine.setNextMaintenanceDate(
-                    machine.getNextMaintenanceDate()
+            checklist.setNextDueDate(
+                    checklist
+                            .getNextDueDate()
                             .plusDays(
-                                    machine
-                                            .getMaintenanceFrequencyDays()));
+                                    checklist
+                                            .getFrequencyDays()));
 
-            machineRepo.save(machine);
+            machineChecklistRepo
+                    .save(
+                            checklist);
         }
+
+        log.info(
+                "Midnight Scheduler Finished");
     }
-    @Scheduled(
-            cron = "0 0 0 * * *",
-            zone = "Asia/Kolkata")
+
     @Transactional
-    public void clearCompletedTasks()
+    @Scheduled(cron = "0 0 20 * * *")
+    public void markMissedMaintenance()
     {
-        statusRepo.deleteByMaintenanceStatusIn(
-                List.of(
-                        CurrentDailyMaintenanceStatus
-                                .MaintenanceStatus
-                                .COMPLETED,
+        log.info(
+                "Running 8 PM scheduler");
 
-                        CurrentDailyMaintenanceStatus
-                                .MaintenanceStatus
-                                .DONE_MANUALLY
-                ));
-    }
-    @Scheduled(
-            cron = "0 00 20 * * *",
-            zone = "Asia/Kolkata")
-    public void markMissedMachines()
-    {
         List<CurrentDailyMaintenanceStatus>
-                pendingTasks =
-                statusRepo.findByMaintenanceStatus(
-                        CurrentDailyMaintenanceStatus
-                                .MaintenanceStatus
-                                .PENDING);
+                pendingEntries =
+                statusRepo
+                        .findByMaintenanceStatus(
+                                CurrentDailyMaintenanceStatus
+                                        .MaintenanceStatus
+                                        .PENDING);
 
-        for(CurrentDailyMaintenanceStatus task
-                : pendingTasks)
+        for (CurrentDailyMaintenanceStatus
+                status : pendingEntries)
         {
-            machines machine =
-                    task.getMachine();
-
-            task.setMaintenanceStatus(
+            status.setMaintenanceStatus(
                     CurrentDailyMaintenanceStatus
                             .MaintenanceStatus
                             .MISSED);
 
+            machines machine =
+                    machineRepo.findById(
+                                    status.getMachineId())
+                            .orElseThrow(
+                                    () ->
+                                            new RuntimeException(
+                                                    "Machine Not Found"));
+
             machine.setDelayCount(
-                    machine.getDelayCount() + 1);
-
-            MaintenanceLogs log =
-                    MaintenanceLogs
-                            .builder()
-                            .machine(machine)
-                            .performedBy(null)
-                            .maintenanceDate(
-                                    LocalDateTime.now())
-                            .checklist(null)
-                            .remarks(
-                                    "Auto Marked As MISSED")
-                            .completionType(MaintenanceLogs.CompletionType.MISSED).build();
-
-            statusRepo.save(task);
+                    machine.getDelayCount()
+                            + 1);
 
             machineRepo.save(machine);
 
-            logsRepo.save(log);
+            statusRepo
+                    .save(status);
         }
+
+        log.info(
+                "8 PM scheduler completed");
     }
+
 }

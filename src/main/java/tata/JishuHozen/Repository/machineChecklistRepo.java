@@ -23,4 +23,5 @@ public interface machineChecklistRepo
     boolean existsByMachineIdAndFrequencyDays(
             String machineId,
             Integer frequencyDays);
+
 }

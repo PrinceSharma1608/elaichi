@@ -108,4 +108,9 @@ public interface currentDailyMaintenanceStatusRepo
     void deleteByMaintenanceStatusIn(
             List<CurrentDailyMaintenanceStatus
                     .MaintenanceStatus> statuses);
+
+    void deleteByMaintenanceStatus(
+            CurrentDailyMaintenanceStatus
+                    .MaintenanceStatus
+                    status);
 }
