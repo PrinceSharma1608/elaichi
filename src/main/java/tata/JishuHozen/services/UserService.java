@@ -39,6 +39,8 @@ public class UserService
     @Autowired
     private  auditLogsRepo auditLogsRepo;
     @Autowired
+    private  machineChecklistRepo machineChecklistRepo;
+    @Autowired
     private maintenanceLogsRepo maintenanceLogsRepo;
     @Autowired
     private  teamLeaderJhOwnerMappingRepo teamLeaderJhOwnerMappingRepo;
@@ -751,6 +753,83 @@ public class UserService
                                         log.getFindings())
                                 .build())
                 .toList();
+    }
+
+    @Transactional
+    public String createChecklist(
+            String userId,
+            String role,
+            MachineChecklistDTO dto)
+            throws JsonProcessingException
+    {
+        machines machine =
+                machineRepo.findById(
+                                dto.getMachineId())
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "Machine Not Found"));
+
+    /*
+        Supervisor can only
+        create checklist for
+        machines in his area.
+     */
+        if(role.equals("SUPERVISOR"))
+        {
+            if(machine.getArea()
+                    .getSupervisor()
+                    == null
+                    ||
+                    !machine.getArea()
+                            .getSupervisor()
+                            .getUserId()
+                            .equals(userId))
+            {
+                throw new RuntimeException(
+                        "Unauthorized");
+            }
+        }
+
+        if(machineChecklistRepo
+                .existsByMachineIdAndFrequencyDays(
+                        dto.getMachineId(),
+                        dto.getFrequencyDays()))
+        {
+            throw new RuntimeException(
+                    "Checklist already exists for this frequency");
+        }
+
+        ObjectMapper mapper =
+                new ObjectMapper();
+
+        String checklistJson =
+                mapper.writeValueAsString(
+                        dto.getChecklist());
+
+        LocalDate today =
+                LocalDate.now();
+
+        MachineChecklist checklist =
+                MachineChecklist.builder()
+                        .machineId(
+                                dto.getMachineId())
+                        .frequencyDays(
+                                dto.getFrequencyDays())
+                        .lastCompletedDate(
+                                today)
+                        .nextDueDate(
+                                today.plusDays(
+                                        dto.getFrequencyDays()))
+                        .checklist(
+                                checklistJson)
+                        .build();
+
+        machineChecklistRepo
+                .save(checklist);
+
+        return
+                "Checklist Created Successfully";
     }
 }
 

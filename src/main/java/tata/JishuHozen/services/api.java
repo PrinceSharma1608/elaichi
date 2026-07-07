@@ -167,4 +167,38 @@ getAllAuditLogs()
                         .updateMachineConfiguration(
                                 dto));
     }
+    @PostMapping(
+            "/machine/checklist")
+    public ResponseEntity<String>
+    createChecklist(
+            @RequestBody
+            MachineChecklistDTO dto,
+            HttpServletRequest request)
+            throws JsonProcessingException
+    {
+        String userId =
+                jwtHelper.getUserId(
+                        request);
+
+        String role =
+                jwtHelper.getRole(
+                        request);
+
+        if(!role.equals(
+                "SUPERVISOR")
+                &&
+                !role.equals(
+                        "LINE_INCHARGE"))
+        {
+            throw new RuntimeException(
+                    "Unauthorized");
+        }
+
+        return ResponseEntity.ok(
+                userService
+                        .createChecklist(
+                                userId,
+                                role,
+                                dto));
+    }
 }
