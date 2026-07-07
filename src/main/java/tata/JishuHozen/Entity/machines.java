@@ -22,8 +22,9 @@ public enum MachineStatus
 }
 public enum Flag
 {
-    EC,
-    WC
+    OK,
+    GREEN,
+    RED
 }
 
     @Id

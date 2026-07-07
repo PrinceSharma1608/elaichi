@@ -5,16 +5,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tata.JishuHozen.DTO.MaintenanceCompletionDTO;
+import tata.JishuHozen.DTO.MaintenanceChecklistItemDTO;
 import tata.JishuHozen.DTO.MaintenanceCompletionDTO;
 import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatus;
+import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatusId;
 import tata.JishuHozen.Entity.MaintenanceLogs;
 import tata.JishuHozen.Entity.machines;
 import tata.JishuHozen.Entity.users;
-import tata.JishuHozen.Repository.*;
+import tata.JishuHozen.Repository.currentDailyMaintenanceStatusRepo;
+import tata.JishuHozen.Repository.machineRepo;
+import tata.JishuHozen.Repository.maintenanceLogsRepo;
+import tata.JishuHozen.Repository.teamLeaderJhOwnerMappingRepo;
+import tata.JishuHozen.Repository.userRepo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +31,9 @@ public class MaintenanceService
     private final machineRepo machineRepo;
 
     private final maintenanceLogsRepo logsRepo;
-    private  final teamLeaderJhOwnerMappingRepo teamLeaderJhOwnerMappingRepo;
 
+    private final teamLeaderJhOwnerMappingRepo
+            teamLeaderJhOwnerMappingRepo;
 
     private final userRepo userRepo;
 
@@ -48,27 +55,33 @@ public class MaintenanceService
         users user =
                 userRepo.findById(userId)
                         .orElseThrow(
-                                () -> new RuntimeException(
-                                        "User Not Found"));
+                                () ->
+                                        new RuntimeException(
+                                                "User Not Found"));
 
         machines machine =
                 machineRepo.findById(
                                 dto.getMachineId())
                         .orElseThrow(
-                                () -> new RuntimeException(
-                                        "Machine Not Found"));
+                                () ->
+                                        new RuntimeException(
+                                                "Machine Not Found"));
+
+        CurrentDailyMaintenanceStatusId id =
+                new CurrentDailyMaintenanceStatusId(
+                        dto.getMachineId(),
+                        dto.getFrequencyDays());
 
         CurrentDailyMaintenanceStatus cdms =
-                statusRepo
-                        .findById(
-                                dto.getMachineId())
+                statusRepo.findById(id)
                         .orElseThrow(
-                                () -> new RuntimeException(
-                                        "No Maintenance Scheduled"));
+                                () ->
+                                        new RuntimeException(
+                                                "No Maintenance Scheduled"));
 
-    /*
-        JH can only do his own machine
-     */
+        /*
+            JH can only do his own machine.
+         */
         if (role.equals("JH_OWNER"))
         {
             if (machine.getJhOwner() == null
@@ -82,9 +95,9 @@ public class MaintenanceService
             }
         }
 
-    /*
-        TL can only do mapped JH machines
-     */
+        /*
+            TL can only do mapped machines.
+         */
         if (role.equals("TEAM_LEADER"))
         {
             if (machine.getJhOwner() == null)
@@ -116,9 +129,9 @@ public class MaintenanceService
 
         MaintenanceLogs.CompletionType completionType;
 
-    /*
-        TL is always manual
-     */
+        /*
+            Team Leader is always manual.
+         */
         if (role.equals("TEAM_LEADER"))
         {
             completionType =
@@ -130,10 +143,9 @@ public class MaintenanceService
                             .MaintenanceStatus
                             .DONE_MANUALLY);
         }
-    /*
-        If already MISSED,
-        completion becomes manual.
-     */
+        /*
+            Completing a missed task is manual.
+         */
         else if (
                 cdms.getMaintenanceStatus()
                         ==
@@ -150,9 +162,9 @@ public class MaintenanceService
                             .MaintenanceStatus
                             .DONE_MANUALLY);
         }
-    /*
-        Normal completion.
-     */
+        /*
+            Normal completion.
+         */
         else
         {
             completionType =
@@ -165,12 +177,26 @@ public class MaintenanceService
                             .COMPLETED);
         }
 
-        machine.setDelayCount(0);
+        /*
+            Delay count decreases by 1.
+         */
+        if (machine.getDelayCount() > 0)
+        {
+            machine.setDelayCount(
+                    machine.getDelayCount() - 1);
+        }
 
-        machine.setLastMaintenanceDate(
-                LocalDate.now());
+        /*
+            Update machine flag.
+         */
+        machine.setFlag(
+                calculateFlag(
+                        dto.getChecklist()));
 
         cdms.setCompletedBy(user);
+
+        cdms.setChecklist(
+                checklistJson);
 
         MaintenanceLogs log =
                 MaintenanceLogs.builder()
@@ -186,13 +212,63 @@ public class MaintenanceService
                                 completionType)
                         .build();
 
-        statusRepo
-                .save(cdms);
+        statusRepo.save(cdms);
 
         machineRepo.save(machine);
 
         logsRepo.save(log);
 
         return "Maintenance Completed Successfully";
+    }
+
+    private machines.Flag
+    calculateFlag(
+            List<MaintenanceChecklistItemDTO>
+                    checklist)
+    {
+        long ok =
+                checklist.stream()
+                        .filter(
+                                x ->
+                                        x.getStatus()
+                                                .equals(
+                                                        "OK"))
+                        .count();
+
+        long green =
+                checklist.stream()
+                        .filter(
+                                x ->
+                                        x.getStatus()
+                                                .equals(
+                                                        "GREEN"))
+                        .count();
+
+        long red =
+                checklist.stream()
+                        .filter(
+                                x ->
+                                        x.getStatus()
+                                                .equals(
+                                                        "RED"))
+                        .count();
+
+        /*
+            Priority:
+            OK > GREEN > RED
+         */
+        if (ok >= green
+                &&
+                ok >= red)
+        {
+            return machines.Flag.OK;
+        }
+
+        if (green >= red)
+        {
+            return machines.Flag.GREEN;
+        }
+
+        return machines.Flag.RED;
     }
 }

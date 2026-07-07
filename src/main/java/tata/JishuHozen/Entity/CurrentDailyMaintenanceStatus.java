@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@IdClass(
+        CurrentDailyMaintenanceStatusId.class)
 public class CurrentDailyMaintenanceStatus {
     public enum MaintenanceStatus
     {
@@ -27,6 +29,10 @@ public class CurrentDailyMaintenanceStatus {
     @Id
     @Column(name = "machine_id")
     private String machineId;
+
+    @Id
+    @Column(name = "frequency_days")
+    private Integer frequencyDays;
 
     @OneToOne
     @JoinColumn(
@@ -44,14 +50,14 @@ public class CurrentDailyMaintenanceStatus {
     @Column(name = "maintenance_status")
     private MaintenanceStatus maintenanceStatus;
 
-    @Column(name = "audited")
-    private Boolean audited;
-
     @ManyToOne
     @JoinColumn(name = "completed_by")
     private users completedBy;
 
-
+    @Column(
+            name = "checklist",
+            columnDefinition = "jsonb")
+    private String checklist;
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }

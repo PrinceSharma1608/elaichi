@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import tata.JishuHozen.DTO.DailyDashboardDTO;
 import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatus;
+import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatusId;
 
 import java.util.List;
 
@@ -12,15 +13,21 @@ import java.util.Optional;
 
 
 public interface currentDailyMaintenanceStatusRepo
-        extends JpaRepository<
-        CurrentDailyMaintenanceStatus,
-        String>
+        extends JpaRepository
+        <
+                CurrentDailyMaintenanceStatus,
+                CurrentDailyMaintenanceStatusId
+                >
 {
     List<CurrentDailyMaintenanceStatus>
     findByMaintenanceStatus(
-            CurrentDailyMaintenanceStatus.MaintenanceStatus maintenanceStatus
-    );
-
+            CurrentDailyMaintenanceStatus
+                    .MaintenanceStatus
+                    status);
+    Optional<CurrentDailyMaintenanceStatus>
+    findByMachineIdAndFrequencyDays(
+            String machineId,
+            Integer frequencyDays);
     @Query("""
         SELECT new tata.JishuHozen.DTO.DailyDashboardDTO(
             m.machineId,

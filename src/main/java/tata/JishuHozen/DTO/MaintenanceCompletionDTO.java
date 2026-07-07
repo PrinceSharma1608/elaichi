@@ -3,6 +3,7 @@ package tata.JishuHozen.DTO;
 import lombok.*;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 @Service
 @Getter
@@ -14,7 +15,10 @@ public class MaintenanceCompletionDTO
 {
     private String machineId;
 
-    private Map<String, Boolean> checklist;
+    private Integer frequencyDays;
+
+    private List<MaintenanceChecklistItemDTO>
+            checklist;
 
     private String remarks;
 }
