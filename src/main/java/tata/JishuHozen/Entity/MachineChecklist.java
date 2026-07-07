@@ -30,6 +30,7 @@ public class MachineChecklist
     @Column(name = "next_due_date")
     private LocalDate nextDueDate;
 
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
     @Column(
             name = "checklist",
             columnDefinition = "jsonb")

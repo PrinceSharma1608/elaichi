@@ -54,6 +54,7 @@ public class CurrentDailyMaintenanceStatus {
     @JoinColumn(name = "completed_by")
     private users completedBy;
 
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
     @Column(
             name = "checklist",
             columnDefinition = "jsonb")
