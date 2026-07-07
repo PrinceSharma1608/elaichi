@@ -715,6 +715,49 @@ public class UserService
             Integer frequencyDays)
             throws JsonProcessingException
     {
+        ObjectMapper mapper =
+                new ObjectMapper();
+
+        CurrentDailyMaintenanceStatusId statusId =
+                new CurrentDailyMaintenanceStatusId(
+                        machineId,
+                        frequencyDays);
+
+        Optional<CurrentDailyMaintenanceStatus> statusOpt =
+                currentDailyMaintenanceStatusRepo
+                        .findById(statusId);
+
+        if (statusOpt.isPresent() && statusOpt.get().getChecklist() != null && !statusOpt.get().getChecklist().trim().isEmpty())
+        {
+            // If the status has a checklist saved/issued, parse it
+            String rawJson = statusOpt.get().getChecklist();
+            // Wait, if it is a JSON array of strings e.g. ["Cleaner", "Oiling"], parse directly
+            // In case it's a JSON array of objects e.g. [{"item": "Cleaner", "status": "OK"}], extract the item strings
+            try {
+                List<String> list = mapper.readValue(
+                        rawJson,
+                        mapper.getTypeFactory()
+                                .constructCollectionType(
+                                        List.class,
+                                        String.class));
+                return list;
+            } catch (Exception e) {
+                // If it's a list of MaintenanceChecklistItemDTO, map the items
+                try {
+                    List<MaintenanceChecklistItemDTO> listDto = mapper.readValue(
+                            rawJson,
+                            mapper.getTypeFactory()
+                                    .constructCollectionType(
+                                            List.class,
+                                            MaintenanceChecklistItemDTO.class));
+                    return listDto.stream().map(MaintenanceChecklistItemDTO::getItem).toList();
+                } catch (Exception ex) {
+                    // Fall back to master
+                }
+            }
+        }
+
+        // Fallback to master checklist table
         MachineChecklistId id =
                 new MachineChecklistId(
                         machineId,
@@ -727,9 +770,6 @@ public class UserService
                                 () ->
                                         new RuntimeException(
                                                 "Checklist Not Found"));
-
-        ObjectMapper mapper =
-                new ObjectMapper();
 
         return mapper.readValue(
                 checklist.getChecklist(),

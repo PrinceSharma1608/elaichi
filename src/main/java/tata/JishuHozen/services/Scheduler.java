@@ -122,6 +122,8 @@ public class Scheduler
                                         CurrentDailyMaintenanceStatus
                                                 .MaintenanceStatus
                                                 .PENDING)
+                                .checklist(
+                                        checklist.getChecklist())
                                 .build();
 
                 statusRepo.save(
