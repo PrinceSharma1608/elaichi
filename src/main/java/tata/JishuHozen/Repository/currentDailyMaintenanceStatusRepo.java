@@ -33,10 +33,16 @@ public interface currentDailyMaintenanceStatusRepo
             m.machineId,
             m.machineName,
             c.frequencyDays,
-            c.maintenanceStatus
+            c.maintenanceStatus,
+            m.subarea,
+            m.flag,
+            mc.nextDueDate
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
+        JOIN MachineChecklist mc
+            ON mc.machineId = c.machineId
+            AND mc.frequencyDays = c.frequencyDays
     """)
     List<DailyDashboardDTO>
     getDailyDashboard();
@@ -46,12 +52,18 @@ public interface currentDailyMaintenanceStatusRepo
             m.machineId,
             m.machineName,
             c.frequencyDays,
-            c.maintenanceStatus
+            c.maintenanceStatus,
+            m.subarea,
+            m.flag,
+            mc.nextDueDate
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
         JOIN m.area a
         JOIN a.supervisor s
+        JOIN MachineChecklist mc
+            ON mc.machineId = c.machineId
+            AND mc.frequencyDays = c.frequencyDays
         WHERE s.userId = :supervisorId
     """)
     List<DailyDashboardDTO>
@@ -64,13 +76,19 @@ public interface currentDailyMaintenanceStatusRepo
             m.machineId,
             m.machineName,
             c.frequencyDays,
-            c.maintenanceStatus
+            c.maintenanceStatus,
+            m.subarea,
+            m.flag,
+            mc.nextDueDate
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
         JOIN m.jhOwner j
         JOIN TeamLeaderJhOwnerMapping map
             ON map.jhOwnerId = j.userId
+        JOIN MachineChecklist mc
+            ON mc.machineId = c.machineId
+            AND mc.frequencyDays = c.frequencyDays
         WHERE map.teamLeaderId = :teamLeaderId
     """)
     List<DailyDashboardDTO>
@@ -83,11 +101,17 @@ public interface currentDailyMaintenanceStatusRepo
             m.machineId,
             m.machineName,
             c.frequencyDays,
-            c.maintenanceStatus
+            c.maintenanceStatus,
+            m.subarea,
+            m.flag,
+            mc.nextDueDate
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
         JOIN m.jhOwner j
+        JOIN MachineChecklist mc
+            ON mc.machineId = c.machineId
+            AND mc.frequencyDays = c.frequencyDays
         WHERE j.userId = :jhOwnerId
     """)
     List<DailyDashboardDTO>

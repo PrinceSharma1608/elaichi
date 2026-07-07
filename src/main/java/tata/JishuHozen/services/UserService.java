@@ -709,5 +709,34 @@ public class UserService
         return
                 "Checklist Created Successfully";
     }
+
+    public List<String> getChecklist(
+            String machineId,
+            Integer frequencyDays)
+            throws JsonProcessingException
+    {
+        MachineChecklistId id =
+                new MachineChecklistId(
+                        machineId,
+                        frequencyDays);
+
+        MachineChecklist checklist =
+                machineChecklistRepo
+                        .findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "Checklist Not Found"));
+
+        ObjectMapper mapper =
+                new ObjectMapper();
+
+        return mapper.readValue(
+                checklist.getChecklist(),
+                mapper.getTypeFactory()
+                        .constructCollectionType(
+                                List.class,
+                                String.class));
+    }
 }
 

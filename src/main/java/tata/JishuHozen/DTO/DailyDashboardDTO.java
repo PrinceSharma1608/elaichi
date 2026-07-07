@@ -2,6 +2,9 @@ package tata.JishuHozen.DTO;
 
 import lombok.*;
 import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatus;
+import tata.JishuHozen.Entity.machines;
+
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -19,4 +22,10 @@ public class DailyDashboardDTO
     private CurrentDailyMaintenanceStatus
             .MaintenanceStatus
             maintenanceStatus;
+
+    private String subarea;
+
+    private machines.Flag flag;
+
+    private LocalDate nextDueDate;
 }

@@ -195,10 +195,23 @@ getAllAuditLogs()
         }
 
         return ResponseEntity.ok(
+                userService.createChecklist(
+                        userId,
+                        role,
+                        dto));
+    }
+
+    @GetMapping("/machine/checklist")
+    public ResponseEntity<List<String>>
+    getChecklist(
+            @RequestParam String machineId,
+            @RequestParam Integer frequencyDays)
+            throws JsonProcessingException
+    {
+        return ResponseEntity.ok(
                 userService
-                        .createChecklist(
-                                userId,
-                                role,
-                                dto));
+                        .getChecklist(
+                                machineId,
+                                frequencyDays));
     }
 }
