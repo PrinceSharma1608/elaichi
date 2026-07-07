@@ -155,7 +155,7 @@ public class Scheduler
     }
 
     @Transactional
-    @Scheduled(cron = "0 18 21 * * *",
+    @Scheduled(cron = "0 0 20 * * *",
             zone = "Asia/Kolkata")
     public void markMissedMaintenance()
     {
