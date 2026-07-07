@@ -32,7 +32,8 @@ public class Scheduler
         Every day at 12:00 AM
      */
     @Transactional
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *",
+            zone = "Asia/Kolkata")
     public void midnightScheduler()
     {
         log.info(
@@ -154,7 +155,8 @@ public class Scheduler
     }
 
     @Transactional
-    @Scheduled(cron = "0 0 20 * * *")
+    @Scheduled(cron = "0 18 21 * * *",
+            zone = "Asia/Kolkata")
     public void markMissedMaintenance()
     {
         log.info(
