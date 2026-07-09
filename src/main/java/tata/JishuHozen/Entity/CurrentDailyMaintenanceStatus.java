@@ -61,4 +61,7 @@ public class CurrentDailyMaintenanceStatus {
     private String checklist;
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "remarks")
+    private String remarks;
 }

@@ -39,7 +39,9 @@ public interface currentDailyMaintenanceStatusRepo
             mc.nextDueDate,
             mc.delayCount,
             a.areaName,
-            c.updatedAt
+            c.updatedAt,
+            c.remarks,
+            c.checklist
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
@@ -62,7 +64,9 @@ public interface currentDailyMaintenanceStatusRepo
             mc.nextDueDate,
             mc.delayCount,
             a.areaName,
-            c.updatedAt
+            c.updatedAt,
+            c.remarks,
+            c.checklist
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
@@ -89,7 +93,9 @@ public interface currentDailyMaintenanceStatusRepo
             mc.nextDueDate,
             mc.delayCount,
             a.areaName,
-            c.updatedAt
+            c.updatedAt,
+            c.remarks,
+            c.checklist
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
@@ -118,7 +124,9 @@ public interface currentDailyMaintenanceStatusRepo
             mc.nextDueDate,
             mc.delayCount,
             a.areaName,
-            c.updatedAt
+            c.updatedAt,
+            c.remarks,
+            c.checklist
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m

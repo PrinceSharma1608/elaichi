@@ -190,6 +190,9 @@ public class MaintenanceService
         cdms.setChecklist(
                 checklistJson);
 
+        cdms.setUpdatedAt(LocalDateTime.now());
+        cdms.setRemarks(dto.getRemarks());
+
         MaintenanceLogs log =
                 MaintenanceLogs.builder()
                         .machine(machine)
