@@ -36,10 +36,14 @@ public interface currentDailyMaintenanceStatusRepo
             c.maintenanceStatus,
             m.subarea,
             m.flag,
-            mc.nextDueDate
+            mc.nextDueDate,
+            mc.delayCount,
+            a.areaName,
+            c.updatedAt
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
+        LEFT JOIN m.area a
         JOIN MachineChecklist mc
             ON mc.machineId = c.machineId
             AND mc.frequencyDays = c.frequencyDays
@@ -55,7 +59,10 @@ public interface currentDailyMaintenanceStatusRepo
             c.maintenanceStatus,
             m.subarea,
             m.flag,
-            mc.nextDueDate
+            mc.nextDueDate,
+            mc.delayCount,
+            a.areaName,
+            c.updatedAt
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
@@ -79,10 +86,14 @@ public interface currentDailyMaintenanceStatusRepo
             c.maintenanceStatus,
             m.subarea,
             m.flag,
-            mc.nextDueDate
+            mc.nextDueDate,
+            mc.delayCount,
+            a.areaName,
+            c.updatedAt
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
+        LEFT JOIN m.area a
         JOIN m.jhOwner j
         JOIN TeamLeaderJhOwnerMapping map
             ON map.jhOwnerId = j.userId
@@ -104,10 +115,14 @@ public interface currentDailyMaintenanceStatusRepo
             c.maintenanceStatus,
             m.subarea,
             m.flag,
-            mc.nextDueDate
+            mc.nextDueDate,
+            mc.delayCount,
+            a.areaName,
+            c.updatedAt
         )
         FROM CurrentDailyMaintenanceStatus c
         JOIN c.machine m
+        LEFT JOIN m.area a
         JOIN m.jhOwner j
         JOIN MachineChecklist mc
             ON mc.machineId = c.machineId

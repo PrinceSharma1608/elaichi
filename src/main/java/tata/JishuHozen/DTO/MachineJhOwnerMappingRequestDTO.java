@@ -11,4 +11,8 @@ public class MachineJhOwnerMappingRequestDTO
     private String machineId;
 
     private String jhOwnerId;
+
+    private String subarea;
+
+    private String machineStatus;
 }

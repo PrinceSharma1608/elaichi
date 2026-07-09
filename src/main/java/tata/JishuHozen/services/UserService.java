@@ -279,7 +279,7 @@ public class UserService
             machineRepo.saveAndFlush(machine);
         }
 
-        // Step 2: Apply new JHO assignments
+        // Step 2: Apply new JHO, subarea and status assignments
         for(MachineJhOwnerMappingRequestDTO dto : dtoList)
         {
             machines machine =
@@ -289,40 +289,43 @@ public class UserService
                                     () -> new RuntimeException(
                                             "Machine Not Found: " + dto.getMachineId()));
 
+            // Update subarea if provided
+            if (dto.getSubarea() != null) {
+                machine.setSubarea(dto.getSubarea());
+            }
+
+            // Update machineStatus if provided
+            if (dto.getMachineStatus() != null && !dto.getMachineStatus().trim().isEmpty()) {
+                machine.setMachineStatus(machines.MachineStatus.valueOf(dto.getMachineStatus().toUpperCase()));
+            }
+
             // If target JHO is null, empty, or "null", it remains unassigned
-            if(dto.getJhOwnerId() == null || dto.getJhOwnerId().trim().isEmpty() || dto.getJhOwnerId().equalsIgnoreCase("null"))
+            if(dto.getJhOwnerId() != null && !dto.getJhOwnerId().trim().isEmpty() && !dto.getJhOwnerId().equalsIgnoreCase("null"))
             {
-                continue;
+                users jhOwner =
+                        userRepo.findById(
+                                        dto.getJhOwnerId())
+                                .orElseThrow(
+                                        () -> new RuntimeException(
+                                                "JH Owner Not Found: " + dto.getJhOwnerId()));
+
+                if(jhOwner.getUserRole() != users.UserRole.JH_OWNER)
+                {
+                    throw new RuntimeException("Invalid JH Owner: " + dto.getJhOwnerId());
+                }
+
+                // Verify 1:1 constraint in DB (exclude the current machine)
+                machines existingMachine =
+                        machineRepo.findByJhOwner_UserId(dto.getJhOwnerId());
+
+                if(existingMachine != null && !existingMachine.getMachineId().equals(machine.getMachineId()))
+                {
+                    throw new RuntimeException("JH Owner Already Assigned: " + dto.getJhOwnerId());
+                }
+
+                machine.setJhOwner(jhOwner);
             }
 
-            users jhOwner =
-                    userRepo.findById(
-                                    dto.getJhOwnerId())
-                            .orElseThrow(
-                                    () -> new RuntimeException(
-                                            "JH Owner Not Found: " + dto.getJhOwnerId()));
-
-            if(jhOwner.getUserRole()
-                    != users.UserRole.JH_OWNER)
-            {
-                throw new RuntimeException(
-                        "Invalid JH Owner : "
-                                + dto.getJhOwnerId());
-            }
-
-            // Verify 1:1 constraint in DB (exclude the current machine)
-            machines existingMachine =
-                    machineRepo.findByJhOwner_UserId(
-                            dto.getJhOwnerId());
-
-            if(existingMachine != null && !existingMachine.getMachineId().equals(machine.getMachineId()))
-            {
-                throw new RuntimeException(
-                        "JH Owner Already Assigned : "
-                                + dto.getJhOwnerId());
-            }
-
-            machine.setJhOwner(jhOwner);
             machineRepo.save(machine);
         }
 
@@ -782,6 +785,11 @@ public class UserService
                         .constructCollectionType(
                                 List.class,
                                 String.class));
+     }
+
+    public List<MachineDirectoryDTO> getMachineDirectory()
+    {
+        return machineRepo.getMachineDirectory();
     }
 }
 

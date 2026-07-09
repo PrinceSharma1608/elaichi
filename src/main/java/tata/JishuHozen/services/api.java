@@ -146,26 +146,10 @@ getAllAuditLogs()
                 )
         );
     }
-    @PutMapping("/machine/configuration")
-    public ResponseEntity<String>
-    updateMachineConfiguration(
-            @RequestBody
-            UpdateMachineConfigurationDTO dto,
-            HttpServletRequest request)
+    @GetMapping("/machine-directory")
+    public List<MachineDirectoryDTO> getMachineDirectory()
     {
-        String role =
-                jwtHelper.getRole(request);
-
-        if(!role.equals("LINE_INCHARGE"))
-        {
-            throw new RuntimeException(
-                    "Unauthorized");
-        }
-
-        return ResponseEntity.ok(
-                userService
-                        .updateMachineConfiguration(
-                                dto));
+        return userService.getMachineDirectory();
     }
     @PostMapping(
             "/machine/checklist")

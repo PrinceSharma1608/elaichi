@@ -28,4 +28,10 @@ public class DailyDashboardDTO
     private machines.Flag flag;
 
     private LocalDate nextDueDate;
+
+    private Integer delayCount;
+
+    private String areaName;
+
+    private java.time.LocalDateTime completedAt;
 }
