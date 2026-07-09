@@ -45,20 +45,6 @@ public enum Flag
     @Column(name = "subarea")
     private String subarea;
 
-    @Column(name = "maintenance_frequency_days")
-    private Integer maintenanceFrequencyDays;
-
-    @Column(name = "last_maintenance_date")
-    private LocalDate lastMaintenanceDate;
-
-    @Column(name = "next_maintenance_date")
-    private LocalDate nextMaintenanceDate;
-
-
-
-    @Column(name = "delay_count")
-    private Integer delayCount;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "machine_status")
     private MachineStatus machineStatus;

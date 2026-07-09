@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatus;
 import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatusId;
 import tata.JishuHozen.Entity.MachineChecklist;
+import tata.JishuHozen.Entity.MachineChecklistId;
 import tata.JishuHozen.Entity.machines;
 import tata.JishuHozen.Repository.currentDailyMaintenanceStatusRepo;
 import tata.JishuHozen.Repository.machineChecklistRepo;
@@ -178,19 +179,23 @@ public class Scheduler
                             .MaintenanceStatus
                             .MISSED);
 
-            machines machine =
-                    machineRepo.findById(
-                                    status.getMachineId())
-                            .orElseThrow(
-                                    () ->
-                                            new RuntimeException(
-                                                    "Machine Not Found"));
+            MachineChecklistId checklistId =
+                    new MachineChecklistId(
+                            status.getMachineId(),
+                            status.getFrequencyDays());
 
-            machine.setDelayCount(
-                    machine.getDelayCount()
+            MachineChecklist checklist =
+                    machineChecklistRepo.findById(checklistId)
+                            .orElseThrow(
+                                     () ->
+                                             new RuntimeException(
+                                                     "Checklist Not Found"));
+
+            checklist.setDelayCount(
+                    (checklist.getDelayCount() != null ? checklist.getDelayCount() : 0)
                             + 1);
 
-            machineRepo.save(machine);
+            machineChecklistRepo.save(checklist);
 
             statusRepo
                     .save(status);

@@ -177,14 +177,6 @@ public class MaintenanceService
                             .COMPLETED);
         }
 
-        /*
-            Delay count decreases by 1.
-         */
-        if (machine.getDelayCount() > 0)
-        {
-            machine.setDelayCount(
-                    machine.getDelayCount() - 1);
-        }
 
         /*
             Update machine flag.
@@ -233,6 +225,11 @@ public class MaintenanceService
                                 () ->
                                         new RuntimeException(
                                                 "Checklist Not Found"));
+
+        if (checklist.getDelayCount() != null && checklist.getDelayCount() > 0)
+        {
+            checklist.setDelayCount(checklist.getDelayCount() - 1);
+        }
 
         checklist.setLastCompletedDate(
                 LocalDate.now());

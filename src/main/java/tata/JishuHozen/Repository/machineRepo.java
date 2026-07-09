@@ -21,42 +21,32 @@ public interface machineRepo
         SELECT new tata.JishuHozen.DTO.MachineDashboardDTO(
             m.machineId,
             m.machineName,
-
             a.areaId,
             a.areaName,
-
             m.subarea,
-
             j.userId,
             j.userName,
-
-            m.delayCount,
-
+            mc.delayCount,
             s.userId,
             s.userName,
-
             tl.userId,
             tl.userName,
-
-            m.maintenanceFrequencyDays,
-            m.lastMaintenanceDate,
-            m.nextMaintenanceDate,
+            mc.frequencyDays,
+            mc.lastCompletedDate,
+            mc.nextDueDate,
             m.machineStatus,
             m.flag
         )
         FROM machines m
-
         LEFT JOIN m.area a
-
         LEFT JOIN a.supervisor s
-
         LEFT JOIN m.jhOwner j
-
         LEFT JOIN TeamLeaderJhOwnerMapping map
             ON map.jhOwnerId = j.userId
-
         LEFT JOIN users tl
             ON tl.userId = map.teamLeaderId
+        LEFT JOIN MachineChecklist mc
+            ON mc.machineId = m.machineId
     """)
     List<MachineDashboardDTO> getDashboardMachines();
 
@@ -65,6 +55,7 @@ public interface machineRepo
 
     machines findByJhOwner_UserId(
             String userId);
+
     @Query("""
     SELECT new tata.JishuHozen.DTO.MachineDashboardDTO(
         m.machineId,
@@ -74,14 +65,14 @@ public interface machineRepo
         m.subarea,
         j.userId,
         j.userName,
-        m.delayCount,
+        mc.delayCount,
         s.userId,
         s.userName,
         tl.userId,
         tl.userName,
-        m.maintenanceFrequencyDays,
-        m.lastMaintenanceDate,
-        m.nextMaintenanceDate,
+        mc.frequencyDays,
+        mc.lastCompletedDate,
+        mc.nextDueDate,
         m.machineStatus,
         m.flag
     )
@@ -93,6 +84,8 @@ public interface machineRepo
         ON map.jhOwnerId = j.userId
     LEFT JOIN users tl
         ON tl.userId = map.teamLeaderId
+    LEFT JOIN MachineChecklist mc
+        ON mc.machineId = m.machineId
     WHERE s.userId = :supervisorId
 """)
     List<MachineDashboardDTO>
@@ -109,14 +102,14 @@ public interface machineRepo
         m.subarea,
         j.userId,
         j.userName,
-        m.delayCount,
+        mc.delayCount,
         s.userId,
         s.userName,
         tl.userId,
         tl.userName,
-        m.maintenanceFrequencyDays,
-        m.lastMaintenanceDate,
-        m.nextMaintenanceDate,
+        mc.frequencyDays,
+        mc.lastCompletedDate,
+        mc.nextDueDate,
         m.machineStatus,
         m.flag
     )
@@ -128,6 +121,8 @@ public interface machineRepo
         ON map.jhOwnerId = j.userId
     LEFT JOIN users tl
         ON tl.userId = map.teamLeaderId
+    LEFT JOIN MachineChecklist mc
+        ON mc.machineId = m.machineId
     WHERE tl.userId = :teamLeaderId
 """)
     List<MachineDashboardDTO>
@@ -144,14 +139,14 @@ public interface machineRepo
         m.subarea,
         j.userId,
         j.userName,
-        m.delayCount,
+        mc.delayCount,
         s.userId,
         s.userName,
         tl.userId,
         tl.userName,
-        m.maintenanceFrequencyDays,
-        m.lastMaintenanceDate,
-        m.nextMaintenanceDate,
+        mc.frequencyDays,
+        mc.lastCompletedDate,
+        mc.nextDueDate,
         m.machineStatus,
         m.flag
     )
@@ -163,6 +158,8 @@ public interface machineRepo
         ON map.jhOwnerId = j.userId
     LEFT JOIN users tl
         ON tl.userId = map.teamLeaderId
+    LEFT JOIN MachineChecklist mc
+        ON mc.machineId = m.machineId
     WHERE j.userId = :jhOwnerId
 """)
     List<MachineDashboardDTO>
@@ -170,10 +167,6 @@ public interface machineRepo
             @Param("jhOwnerId")
             String jhOwnerId);
 
-    List<machines>
-    findByMachineStatusAndNextMaintenanceDate(
-            machines.MachineStatus machineStatus,
-            LocalDate nextMaintenanceDate);
     Optional<machines>
     findByJhOwner(users jhOwner);
 }

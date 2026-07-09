@@ -496,11 +496,42 @@ public class UserService
     /*
         Update Frequency
      */
-        if(dto.getMaintenanceFrequencyDays()
-                != null)
-        {
-            machine.setMaintenanceFrequencyDays(
-                    dto.getMaintenanceFrequencyDays());
+        if (dto.getMaintenanceFrequencyDays() != null) {
+            List<MachineChecklist> checklists = machineChecklistRepo.findByMachineId(machine.getMachineId());
+            if (!checklists.isEmpty()) {
+                for (MachineChecklist oldChecklist : checklists) {
+                    if (!oldChecklist.getFrequencyDays().equals(dto.getMaintenanceFrequencyDays())) {
+                        machineChecklistRepo.delete(oldChecklist);
+                        machineChecklistRepo.flush();
+                        
+                        LocalDate nextDate = oldChecklist.getLastCompletedDate();
+                        if (nextDate == null) nextDate = LocalDate.now();
+                        nextDate = nextDate.plusDays(dto.getMaintenanceFrequencyDays());
+                        while (nextDate.isBefore(LocalDate.now())) {
+                            nextDate = nextDate.plusDays(dto.getMaintenanceFrequencyDays());
+                        }
+                        
+                        MachineChecklist newChecklist = MachineChecklist.builder()
+                                .machineId(oldChecklist.getMachineId())
+                                .frequencyDays(dto.getMaintenanceFrequencyDays())
+                                .lastCompletedDate(oldChecklist.getLastCompletedDate() != null ? oldChecklist.getLastCompletedDate() : LocalDate.now())
+                                .nextDueDate(nextDate)
+                                .checklist(oldChecklist.getChecklist())
+                                .delayCount(oldChecklist.getDelayCount() != null ? oldChecklist.getDelayCount() : 0)
+                                .build();
+                        machineChecklistRepo.save(newChecklist);
+                    } else {
+                        LocalDate nextDate = oldChecklist.getLastCompletedDate();
+                        if (nextDate == null) nextDate = LocalDate.now();
+                        nextDate = nextDate.plusDays(dto.getMaintenanceFrequencyDays());
+                        while (nextDate.isBefore(LocalDate.now())) {
+                            nextDate = nextDate.plusDays(dto.getMaintenanceFrequencyDays());
+                        }
+                        oldChecklist.setNextDueDate(nextDate);
+                        machineChecklistRepo.save(oldChecklist);
+                    }
+                }
+            }
         }
 
     /*
@@ -533,26 +564,6 @@ public class UserService
                             .valueOf(
                                     dto.getFlag()));
         }
-
-    /*
-        Recalculate Next Maintenance Date
-     */
-
-        LocalDate nextDate =
-                machine.getLastMaintenanceDate()
-                        .plusDays(
-                                machine.getMaintenanceFrequencyDays());
-
-        while(nextDate.isBefore(
-                LocalDate.now()))
-        {
-            nextDate =
-                    nextDate.plusDays(
-                            machine.getMaintenanceFrequencyDays());
-        }
-
-        machine.setNextMaintenanceDate(
-                nextDate);
 
         machineRepo.save(machine);
 
@@ -694,6 +705,7 @@ public class UserService
                                         dto.getFrequencyDays()))
                         .checklist(
                                 checklistJson)
+                        .delayCount(0)
                         .build();
 
         machineChecklistRepo
