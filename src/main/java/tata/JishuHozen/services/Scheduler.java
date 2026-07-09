@@ -10,9 +10,11 @@ import tata.JishuHozen.Entity.CurrentDailyMaintenanceStatusId;
 import tata.JishuHozen.Entity.MachineChecklist;
 import tata.JishuHozen.Entity.MachineChecklistId;
 import tata.JishuHozen.Entity.machines;
+import tata.JishuHozen.Entity.MaintenanceLogs;
 import tata.JishuHozen.Repository.currentDailyMaintenanceStatusRepo;
 import tata.JishuHozen.Repository.machineChecklistRepo;
 import tata.JishuHozen.Repository.machineRepo;
+import tata.JishuHozen.Repository.maintenanceLogsRepo;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,6 +31,7 @@ public class Scheduler
     private final currentDailyMaintenanceStatusRepo
             statusRepo;
     private final  machineRepo machineRepo;
+    private final maintenanceLogsRepo logsRepo;
     /*
         Every day at 12:00 AM
      */
@@ -178,6 +181,8 @@ public class Scheduler
                     CurrentDailyMaintenanceStatus
                             .MaintenanceStatus
                             .MISSED);
+            status.setRemarks("Auto marks as MISSED");
+            status.setUpdatedAt(LocalDate.now().atTime(20, 0, 0));
 
             MachineChecklistId checklistId =
                     new MachineChecklistId(
@@ -196,6 +201,19 @@ public class Scheduler
                             + 1);
 
             machineChecklistRepo.save(checklist);
+
+            MaintenanceLogs logEntry =
+                    MaintenanceLogs.builder()
+                            .machine(status.getMachine())
+                            .frequencyDays(status.getFrequencyDays())
+                            .performedBy(null)
+                            .maintenanceDate(LocalDate.now().atTime(20, 0, 0))
+                            .checklist(null)
+                            .remarks("Auto marks as MISSED")
+                            .completionType(MaintenanceLogs.CompletionType.MISSED)
+                            .build();
+
+            logsRepo.save(logEntry);
 
             statusRepo
                     .save(status);
