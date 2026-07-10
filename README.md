@@ -1,6 +1,6 @@
-# 🍃 Elaichi - Jishu Hozen Backend
+# 🍃 Jishu Hozen Backend
 
-Elaichi is the robust, high-performance Java Spring Boot backend engine powering the Tata Motors Lucknow **Jishu Hozen (JH) Management Portal**. Built to streamline autonomous maintenance, Elaichi drives the plant floor's digital transformation in the Digital Manufacturing Lab.
+Robust, high-performance Java Spring Boot backend engine powering the Tata Motors Lucknow **Jishu Hozen (JH) Management Portal**. Built to streamline autonomous maintenance, Elaichi drives the plant floor's digital transformation in the Digital Manufacturing Lab.
 
 ## 🚀 Key Features
 
