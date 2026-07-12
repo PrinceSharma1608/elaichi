@@ -36,7 +36,7 @@ public class Scheduler
         Every day at 12:00 AM
      */
     @Transactional
-    @Scheduled(cron = "0 0 0 * * *",
+    @Scheduled(cron = "0 01 00 * * *",
             zone = "Asia/Kolkata")
     public void midnightScheduler()
     {
@@ -55,11 +55,6 @@ public class Scheduler
                 CurrentDailyMaintenanceStatus
                         .MaintenanceStatus
                         .DONE_MANUALLY);
-
-        statusRepo.deleteByMaintenanceStatus(
-                CurrentDailyMaintenanceStatus
-                        .MaintenanceStatus
-                        .MISSED);
 
         /*
             Fetch all due checklists.
