@@ -161,7 +161,9 @@ BEGIN
     END LOOP;
 END;
 $$;
-
+UPDATE machine_checklists
+SET next_due_date = CURRENT_DATE
+WHERE next_due_date = DATE '2026-07-14';
 BEGIN;
 
 INSERT INTO current_daily_maintenance_status
