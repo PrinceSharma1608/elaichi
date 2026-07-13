@@ -40,5 +40,8 @@ JishuHozen/
 ### Run Local Server
 ```bash
 ./mvnw spring-boot:run
+or 
+mvn.cmd spring-boot:run
+
 ```
-The server will boot up and start listening on port `1608`.
+The server will boot up and start listening currently on port `1608`.
