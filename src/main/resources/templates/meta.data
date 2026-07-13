@@ -1,0 +1,192 @@
+DROP SCHEMA public CASCADE;
+
+CREATE SCHEMA public;
+
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+
+-- ===============================
+-- Line Incharges (5)
+-- ===============================
+INSERT INTO users (user_id, user_name, user_password, user_role)
+SELECT
+    'LI' || LPAD(i::TEXT, 3, '0'),
+    'Line Incharge ' || i,
+    'pass',
+    'LINE_INCHARGE'
+FROM generate_series(1,5) i;
+
+-- ===============================
+-- Supervisors (20)
+-- ===============================
+INSERT INTO users (user_id, user_name, user_password, user_role)
+SELECT
+    'SU' || LPAD(i::TEXT, 3, '0'),
+    'Supervisor ' || i,
+    'pass',
+    'SUPERVISOR'
+FROM generate_series(1,20) i;
+
+-- ===============================
+-- Team Leaders (40)
+-- ===============================
+INSERT INTO users (user_id, user_name, user_password, user_role)
+SELECT
+    'TL' || LPAD(i::TEXT, 3, '0'),
+    'Team Leader ' || i,
+    'pass',
+    'TEAM_LEADER'
+FROM generate_series(1,40) i;
+
+-- ===============================
+-- JH Owners (160)
+-- ===============================
+INSERT INTO users (user_id, user_name, user_password, user_role)
+SELECT
+    'JH' || LPAD(i::TEXT, 3, '0'),
+    'JH Owner ' || i,
+    'pass',
+    'JH_OWNER'
+FROM generate_series(1,160) i;
+
+
+INSERT INTO areas (area_id, area_name, supervisor_id)
+SELECT
+    'A' || LPAD(i::TEXT, 2, '0'),
+    'Production Area ' || i,
+    'SU' || LPAD(i::TEXT, 3, '0')
+FROM generate_series(1,20) i;
+
+ALTER TABLE machines
+ALTER COLUMN flag DROP NOT NULL;
+
+
+INSERT INTO machines (
+    machine_id,
+    machine_name,
+    area_id,
+    jhowner_id,
+    subarea,
+    machine_status
+)
+SELECT
+    'M' || LPAD(i::TEXT, 3, '0') AS machine_id,
+    'Machine ' || i AS machine_name,
+    'A' || LPAD((((i - 1) % 20) + 1)::TEXT, 2, '0') AS area_id,
+    'JH' || LPAD(i::TEXT, 3, '0') AS jhowner_id,
+    'Subarea ' || (((i - 1) % 5) + 1) AS subarea,
+    'ACTIVE'
+FROM generate_series(1,150) AS i;
+
+
+INSERT INTO teamleader_jhowner_mapping (teamleader_id, jhowner_id)
+SELECT
+    'TL' || LPAD((((i - 1) / 4) + 1)::TEXT, 3, '0') AS teamleader_id,
+    'JH' || LPAD(i::TEXT, 3, '0') AS jhowner_id
+FROM generate_series(1,160) AS i;
+
+
+DO
+$$
+DECLARE
+    i INT;
+    freq INT;
+    checklist_data JSONB;
+BEGIN
+    FOR i IN 1..150 LOOP
+
+        -- Daily Checklist
+        checklist_data := to_jsonb(ARRAY[
+            'Check Oil Level',
+            'Inspect Air Pressure',
+            'Clean Machine Surface',
+            'Check Emergency Stop',
+            'Inspect Safety Guard'
+        ]);
+
+        INSERT INTO machine_checklists
+        (machine_id, frequency_days, last_completed_date, next_due_date, checklist, delay_count)
+        VALUES
+        (
+            'M' || LPAD(i::TEXT,3,'0'),
+            1,
+            CURRENT_DATE,
+            CURRENT_DATE + 1,
+            checklist_data,
+            0
+        );
+
+        -- Weekly Checklist
+        checklist_data := to_jsonb(ARRAY[
+            'Lubricate Bearings',
+            'Inspect Belt',
+            'Check Gearbox Oil',
+            'Inspect Hydraulic Lines',
+            'Verify Sensor Alignment'
+        ]);
+
+        INSERT INTO machine_checklists
+        (machine_id, frequency_days, last_completed_date, next_due_date, checklist, delay_count)
+        VALUES
+        (
+            'M' || LPAD(i::TEXT,3,'0'),
+            7,
+            CURRENT_DATE,
+            CURRENT_DATE + 7,
+            checklist_data,
+            0
+        );
+
+        -- Monthly Checklist
+        checklist_data := to_jsonb(ARRAY[
+            'Replace Filters',
+            'Inspect Motor',
+            'Calibrate Sensors',
+            'Check Electrical Connections',
+            'General Inspection'
+        ]);
+
+        INSERT INTO machine_checklists
+        (machine_id, frequency_days, last_completed_date, next_due_date, checklist, delay_count)
+        VALUES
+        (
+            'M' || LPAD(i::TEXT,3,'0'),
+            30,
+            CURRENT_DATE,
+            CURRENT_DATE + 30,
+            checklist_data,
+            0
+        );
+
+    END LOOP;
+END;
+$$;
+
+BEGIN;
+
+INSERT INTO current_daily_maintenance_status
+(
+    machine_id,
+    frequency_days,
+    maintenance_date,
+    maintenance_status,
+    checklist,
+    updated_at
+)
+SELECT
+    machine_id,
+    frequency_days,
+    CURRENT_DATE,
+    'PENDING',
+    checklist,
+    CURRENT_TIMESTAMP
+FROM machine_checklists
+WHERE next_due_date = CURRENT_DATE;
+
+UPDATE machine_checklists
+SET
+    last_completed_date = next_due_date,
+    next_due_date = next_due_date + frequency_days
+WHERE next_due_date = CURRENT_DATE;
+
+COMMIT;
